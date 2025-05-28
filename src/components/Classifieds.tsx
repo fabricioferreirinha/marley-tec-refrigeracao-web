@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, Eye } from 'lucide-react';
+import ImageCarousel from './ImageCarousel';
 
 interface Product {
   id: string;
@@ -8,7 +9,7 @@ interface Product {
   price: number;
   condition: string;
   description: string;
-  image: string;
+  images: string[];
   createdAt: string;
 }
 
@@ -21,7 +22,13 @@ const Classifieds = () => {
   useEffect(() => {
     const savedProducts = localStorage.getItem('classifieds_products');
     if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
+      const parsedProducts = JSON.parse(savedProducts);
+      // Migrar produtos antigos que tinham apenas uma imagem
+      const migratedProducts = parsedProducts.map((product: any) => ({
+        ...product,
+        images: product.images || (product.image ? [product.image] : [])
+      }));
+      setProducts(migratedProducts);
     } else {
       // Produtos iniciais se não houver dados salvos
       const initialProducts: Product[] = [
@@ -31,7 +38,7 @@ const Classifieds = () => {
           price: 800,
           condition: 'Seminova',
           description: 'Geladeira duplex, funcionando perfeitamente. Pequeno risco na porta.',
-          image: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=400',
+          images: ['https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=400'],
           createdAt: '2024-01-15'
         },
         {
@@ -40,7 +47,7 @@ const Classifieds = () => {
           price: 600,
           condition: 'Usada',
           description: 'Máquina automática, todas as funções funcionando. Uso doméstico.',
-          image: 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400',
+          images: ['https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400'],
           createdAt: '2024-01-10'
         },
         {
@@ -49,7 +56,7 @@ const Classifieds = () => {
           price: 1200,
           condition: 'Excelente',
           description: 'Freezer horizontal, ideal para comércio. Revisado recentemente.',
-          image: 'https://images.unsplash.com/photo-1586486488351-935b8b2b0c5d?w=400',
+          images: ['https://images.unsplash.com/photo-1586486488351-935b8b2b0c5d?w=400'],
           createdAt: '2024-01-08'
         }
       ];
@@ -98,11 +105,7 @@ const Classifieds = () => {
           {products.map((product) => (
             <div key={product.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow">
               <div className="relative">
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-48 object-cover"
-                />
+                <ImageCarousel images={product.images} alt={product.name} />
                 <div className="absolute top-4 right-4">
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                     product.condition === 'Excelente' ? 'bg-green-100 text-green-800' :
@@ -160,11 +163,9 @@ const Classifieds = () => {
                   </button>
                 </div>
                 
-                <img
-                  src={selectedProduct.image}
-                  alt={selectedProduct.name}
-                  className="w-full h-64 object-cover rounded-lg mb-4"
-                />
+                <div className="mb-4">
+                  <ImageCarousel images={selectedProduct.images} alt={selectedProduct.name} />
+                </div>
                 
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">

@@ -9,7 +9,7 @@ interface Product {
   price: number;
   condition: string;
   description: string;
-  image: string;
+  images: string[];
   createdAt: string;
 }
 
@@ -25,7 +25,7 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
     price: 0,
     condition: 'Usada',
     description: '',
-    image: ''
+    images: [] as string[]
   });
 
   useEffect(() => {
@@ -35,7 +35,7 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
         price: product.price,
         condition: product.condition,
         description: product.description,
-        image: product.image
+        images: product.images || []
       });
     }
   }, [product]);
@@ -136,9 +136,10 @@ const ProductForm = ({ product, onSave, onCancel }: ProductFormProps) => {
         </div>
 
         <ImageUpload
-          onImageSelect={(imageUrl) => setFormData(prev => ({ ...prev, image: imageUrl }))}
-          currentImage={formData.image}
-          label="Foto do Produto"
+          onImagesSelect={(imageUrls) => setFormData(prev => ({ ...prev, images: imageUrls }))}
+          currentImages={formData.images}
+          label="Fotos do Produto"
+          multiple={true}
         />
 
         <div className="flex justify-end space-x-4">

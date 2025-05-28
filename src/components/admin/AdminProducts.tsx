@@ -9,7 +9,7 @@ interface Product {
   price: number;
   condition: string;
   description: string;
-  image: string;
+  images: string[];
   createdAt: string;
 }
 
@@ -21,7 +21,13 @@ const AdminProducts = () => {
   useEffect(() => {
     const savedProducts = localStorage.getItem('admin_products');
     if (savedProducts) {
-      setProducts(JSON.parse(savedProducts));
+      const parsedProducts = JSON.parse(savedProducts);
+      // Migrar produtos antigos que tinham apenas uma imagem
+      const migratedProducts = parsedProducts.map((product: any) => ({
+        ...product,
+        images: product.images || (product.image ? [product.image] : [])
+      }));
+      setProducts(migratedProducts);
     } else {
       // Produtos iniciais se não houver dados salvos
       const initialProducts: Product[] = [
@@ -31,7 +37,7 @@ const AdminProducts = () => {
           price: 800,
           condition: 'Seminova',
           description: 'Geladeira duplex, funcionando perfeitamente. Pequeno risco na porta.',
-          image: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=400',
+          images: ['https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=400'],
           createdAt: '2024-01-15'
         },
         {
@@ -40,7 +46,7 @@ const AdminProducts = () => {
           price: 600,
           condition: 'Usada',
           description: 'Máquina automática, todas as funções funcionando. Uso doméstico.',
-          image: 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400',
+          images: ['https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400'],
           createdAt: '2024-01-10'
         }
       ];
@@ -139,12 +145,19 @@ const AdminProducts = () => {
           products.map((product) => (
             <div key={product.id} className="border rounded-lg p-4">
               <div className="flex items-start space-x-4">
-                {product.image && (
-                  <img 
-                    src={product.image} 
-                    alt={product.name}
-                    className="w-20 h-20 object-cover rounded-lg"
-                  />
+                {product.images && product.images.length > 0 && (
+                  <div className="relative">
+                    <img 
+                      src={product.images[0]} 
+                      alt={product.name}
+                      className="w-20 h-20 object-cover rounded-lg"
+                    />
+                    {product.images.length > 1 && (
+                      <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full w-6 h-6 flex items-center justify-center">
+                        {product.images.length}
+                      </span>
+                    )}
+                  </div>
                 )}
                 <div className="flex-1">
                   <h3 className="font-medium text-lg">{product.name}</h3>
@@ -172,6 +185,25 @@ const AdminProducts = () => {
       </div>
     </div>
   );
+
+  const handleEditProduct = (product: Product) => {
+    setEditingProduct(product);
+    setShowForm(true);
+  };
+
+  const handleDeleteProduct = (productId: string) => {
+    if (confirm('Tem certeza que deseja excluir este produto?')) {
+      const updatedProducts = products.filter(p => p.id !== productId);
+      setProducts(updatedProducts);
+      localStorage.setItem('admin_products', JSON.stringify(updatedProducts));
+      localStorage.setItem('classifieds_products', JSON.stringify(updatedProducts));
+    }
+  };
+
+  const handleAddProduct = () => {
+    setEditingProduct(undefined);
+    setShowForm(true);
+  };
 };
 
 export default AdminProducts;
