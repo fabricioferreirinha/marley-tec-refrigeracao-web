@@ -14,49 +14,72 @@ interface Product {
 
 const Classifieds = () => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [isAdmin] = useState(false); // Será controlado pelo sistema de login
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
-  // Simulando produtos iniciais
-  useEffect(() => {
-    const initialProducts: Product[] = [
-      {
-        id: '1',
-        name: 'Geladeira Brastemp 420L',
-        price: 800,
-        condition: 'Seminova',
-        description: 'Geladeira duplex, funcionando perfeitamente. Pequeno risco na porta.',
-        image: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=400',
-        createdAt: '2024-01-15'
-      },
-      {
-        id: '2',
-        name: 'Máquina de Lavar Consul 11kg',
-        price: 600,
-        condition: 'Usada',
-        description: 'Máquina automática, todas as funções funcionando. Uso doméstico.',
-        image: 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400',
-        createdAt: '2024-01-10'
-      },
-      {
-        id: '3',
-        name: 'Freezer Horizontal 300L',
-        price: 1200,
-        condition: 'Excelente',
-        description: 'Freezer horizontal, ideal para comércio. Revisado recentemente.',
-        image: 'https://images.unsplash.com/photo-1586486488351-935b8b2b0c5d?w=400',
-        createdAt: '2024-01-08'
-      }
-    ];
-    setProducts(initialProducts);
-  }, []);
-
   const whatsappNumber = "5521999999999";
+
+  useEffect(() => {
+    const savedProducts = localStorage.getItem('classifieds_products');
+    if (savedProducts) {
+      setProducts(JSON.parse(savedProducts));
+    } else {
+      // Produtos iniciais se não houver dados salvos
+      const initialProducts: Product[] = [
+        {
+          id: '1',
+          name: 'Geladeira Brastemp 420L',
+          price: 800,
+          condition: 'Seminova',
+          description: 'Geladeira duplex, funcionando perfeitamente. Pequeno risco na porta.',
+          image: 'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=400',
+          createdAt: '2024-01-15'
+        },
+        {
+          id: '2',
+          name: 'Máquina de Lavar Consul 11kg',
+          price: 600,
+          condition: 'Usada',
+          description: 'Máquina automática, todas as funções funcionando. Uso doméstico.',
+          image: 'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400',
+          createdAt: '2024-01-10'
+        },
+        {
+          id: '3',
+          name: 'Freezer Horizontal 300L',
+          price: 1200,
+          condition: 'Excelente',
+          description: 'Freezer horizontal, ideal para comércio. Revisado recentemente.',
+          image: 'https://images.unsplash.com/photo-1586486488351-935b8b2b0c5d?w=400',
+          createdAt: '2024-01-08'
+        }
+      ];
+      setProducts(initialProducts);
+      localStorage.setItem('classifieds_products', JSON.stringify(initialProducts));
+    }
+  }, []);
 
   const handleWhatsAppContact = (product: Product) => {
     const message = `Olá! Tenho interesse no produto: ${product.name} - R$ ${product.price}. Poderia me dar mais informações?`;
     window.open(`https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`, '_blank');
   };
+
+  if (products.length === 0) {
+    return (
+      <section id="classificados" className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Eletrodomésticos Usados
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+              Equipamentos revisados e testados, com garantia de funcionamento
+            </p>
+            <p className="text-gray-500">Em breve teremos produtos disponíveis.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section id="classificados" className="py-20 bg-gray-50">
@@ -69,16 +92,6 @@ const Classifieds = () => {
             Equipamentos revisados e testados, com garantia de funcionamento
           </p>
         </div>
-
-        {/* Admin Controls */}
-        {isAdmin && (
-          <div className="mb-8 text-center">
-            <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-medium inline-flex items-center space-x-2">
-              <Plus className="w-5 h-5" />
-              <span>Adicionar Produto</span>
-            </button>
-          </div>
-        )}
 
         {/* Products Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -94,7 +107,8 @@ const Classifieds = () => {
                   <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                     product.condition === 'Excelente' ? 'bg-green-100 text-green-800' :
                     product.condition === 'Seminova' ? 'bg-blue-100 text-blue-800' :
-                    'bg-orange-100 text-orange-800'
+                    product.condition === 'Usada' ? 'bg-orange-100 text-orange-800' :
+                    'bg-gray-100 text-gray-800'
                   }`}>
                     {product.condition}
                   </span>
@@ -125,17 +139,6 @@ const Classifieds = () => {
                   >
                     <Eye className="w-5 h-5" />
                   </button>
-
-                  {isAdmin && (
-                    <>
-                      <button className="px-4 py-2 border border-blue-300 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors">
-                        <Edit className="w-5 h-5" />
-                      </button>
-                      <button className="px-4 py-2 border border-red-300 text-red-600 rounded-lg hover:bg-red-50 transition-colors">
-                        <Trash2 className="w-5 h-5" />
-                      </button>
-                    </>
-                  )}
                 </div>
               </div>
             </div>
@@ -171,7 +174,8 @@ const Classifieds = () => {
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                       selectedProduct.condition === 'Excelente' ? 'bg-green-100 text-green-800' :
                       selectedProduct.condition === 'Seminova' ? 'bg-blue-100 text-blue-800' :
-                      'bg-orange-100 text-orange-800'
+                      selectedProduct.condition === 'Usada' ? 'bg-orange-100 text-orange-800' :
+                      'bg-gray-100 text-gray-800'
                     }`}>
                       {selectedProduct.condition}
                     </span>

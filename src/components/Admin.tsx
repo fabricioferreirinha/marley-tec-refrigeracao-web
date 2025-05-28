@@ -5,6 +5,7 @@ import AdminHeader from './admin/AdminHeader';
 import AdminSidebar from './admin/AdminSidebar';
 import AdminDashboard from './admin/AdminDashboard';
 import AdminProducts from './admin/AdminProducts';
+import AdminMedia from './admin/AdminMedia';
 import AdminContent from './admin/AdminContent';
 
 const Admin = () => {
@@ -34,6 +35,7 @@ const Admin = () => {
           <div className="flex-1">
             {activeTab === 'dashboard' && <AdminDashboard />}
             {activeTab === 'products' && <AdminProducts />}
+            {activeTab === 'media' && <AdminMedia />}
             {activeTab === 'content' && <AdminContent />}
           </div>
         </div>

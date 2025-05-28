@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Settings, Users, Package } from 'lucide-react';
+import { BarChart3, Package, FileText, Image } from 'lucide-react';
 
 interface AdminSidebarProps {
   activeTab: string;
@@ -8,36 +8,33 @@ interface AdminSidebarProps {
 }
 
 const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
+  const menuItems = [
+    { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
+    { id: 'products', label: 'Classificados', icon: Package },
+    { id: 'media', label: 'Conteúdo e Mídia', icon: Image },
+    { id: 'content', label: 'Configurações', icon: FileText },
+  ];
+
   return (
-    <div className="w-64 bg-white shadow rounded-lg mr-6">
-      <nav className="mt-5 px-2">
-        <button
-          onClick={() => setActiveTab('dashboard')}
-          className={`group flex items-center px-2 py-2 text-base font-medium rounded-md w-full ${
-            activeTab === 'dashboard' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-50'
-          }`}
-        >
-          <Settings className="mr-4 h-6 w-6" />
-          Dashboard
-        </button>
-        <button
-          onClick={() => setActiveTab('products')}
-          className={`group flex items-center px-2 py-2 text-base font-medium rounded-md w-full ${
-            activeTab === 'products' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-50'
-          }`}
-        >
-          <Package className="mr-4 h-6 w-6" />
-          Classificados
-        </button>
-        <button
-          onClick={() => setActiveTab('content')}
-          className={`group flex items-center px-2 py-2 text-base font-medium rounded-md w-full ${
-            activeTab === 'content' ? 'bg-blue-100 text-blue-700' : 'text-gray-700 hover:bg-gray-50'
-          }`}
-        >
-          <Users className="mr-4 h-6 w-6" />
-          Conteúdo
-        </button>
+    <div className="w-64 bg-white shadow-sm mr-6">
+      <nav className="space-y-1">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={`w-full flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                activeTab === item.id
+                  ? 'bg-blue-100 text-blue-700 border-r-2 border-blue-700'
+                  : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
+              }`}
+            >
+              <Icon className="mr-3 h-5 w-5" />
+              {item.label}
+            </button>
+          );
+        })}
       </nav>
     </div>
   );
