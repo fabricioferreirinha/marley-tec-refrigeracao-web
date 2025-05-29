@@ -1,73 +1,98 @@
-# Welcome to your Lovable project
+# Marley-Tec
 
-## Project info
+Site institucional e sistema de classificados da Marley-Tec.
 
-**URL**: https://lovable.dev/projects/353ecec4-8dc5-4119-a508-e847bf0aaab8
+## Tecnologias
 
-## How can I edit this code?
+- Next.js
+- TypeScript
+- Tailwind CSS
+- PostgreSQL (Vercel)
+- NextAuth.js
+- Prisma
+- Cloudinary
 
-There are several ways of editing your application.
+## Pré-requisitos
 
-**Use Lovable**
+- Node.js 18+
+- npm ou pnpm
+- Conta no Vercel
+- Conta no Cloudinary
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/353ecec4-8dc5-4119-a508-e847bf0aaab8) and start prompting.
+## Configuração do Ambiente
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Clone o repositório:
+```bash
+git clone https://github.com/seu-usuario/marley-tec.git
+cd marley-tec
+```
 
-**Use your preferred IDE**
+2. Instale as dependências:
+```bash
+npm install
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+3. Configure as variáveis de ambiente:
+Crie um arquivo `.env` na raiz do projeto com as seguintes variáveis:
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+```env
+# Database
+POSTGRES_URL="sua_url_postgres"
 
-Follow these steps:
+# NextAuth
+NEXTAUTH_SECRET="sua_chave_secreta"
+NEXTAUTH_URL="http://localhost:3000"
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+# Cloudinary
+CLOUDINARY_CLOUD_NAME="seu_cloud_name"
+CLOUDINARY_API_KEY="sua_api_key"
+CLOUDINARY_API_SECRET="seu_api_secret"
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+4. Inicialize o banco de dados:
+```bash
+npx prisma generate
+npx prisma db push
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+5. Rode o projeto em desenvolvimento:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Deploy
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+O projeto está configurado para deploy automático no Vercel.
 
-**Use GitHub Codespaces**
+1. Faça push para o GitHub
+2. Conecte o repositório no Vercel
+3. Configure as variáveis de ambiente no Vercel
+4. O deploy será feito automaticamente
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Estrutura do Projeto
 
-## What technologies are used for this project?
+- `/src/app` - Rotas e API routes
+- `/src/components` - Componentes React
+- `/src/lib` - Utilitários e configurações
+- `/src/hooks` - Custom hooks
+- `/prisma` - Schema do banco de dados
 
-This project is built with:
+## Funcionalidades
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- Site institucional
+- Sistema de classificados
+- Painel administrativo
+- Upload de imagens
+- Autenticação de administrador
 
-## How can I deploy this project?
+## Contribuição
 
-Simply open [Lovable](https://lovable.dev/projects/353ecec4-8dc5-4119-a508-e847bf0aaab8) and click on Share -> Publish.
+1. Faça um Fork do projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
 
-## Can I connect a custom domain to my Lovable project?
+## Licença
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+Este projeto está sob a licença MIT.
