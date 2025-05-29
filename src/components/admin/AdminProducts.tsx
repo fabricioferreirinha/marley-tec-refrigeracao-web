@@ -185,25 +185,6 @@ const AdminProducts = () => {
       </div>
     </div>
   );
-
-  const handleEditProduct = (product: Product) => {
-    setEditingProduct(product);
-    setShowForm(true);
-  };
-
-  const handleDeleteProduct = (productId: string) => {
-    if (confirm('Tem certeza que deseja excluir este produto?')) {
-      const updatedProducts = products.filter(p => p.id !== productId);
-      setProducts(updatedProducts);
-      localStorage.setItem('admin_products', JSON.stringify(updatedProducts));
-      localStorage.setItem('classifieds_products', JSON.stringify(updatedProducts));
-    }
-  };
-
-  const handleAddProduct = () => {
-    setEditingProduct(undefined);
-    setShowForm(true);
-  };
 };
 
 export default AdminProducts;

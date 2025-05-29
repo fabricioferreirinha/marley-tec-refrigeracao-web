@@ -82,18 +82,21 @@ const AdminMedia = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <ImageUpload
               label="Logo da Empresa"
-              currentImage={content.logo}
-              onImageSelect={(url) => handleChange('logo', url)}
+              currentImages={content.logo ? [content.logo] : []}
+              onImagesSelect={(urls) => handleChange('logo', urls[0] || '')}
+              multiple={false}
             />
             <ImageUpload
               label="Imagem Principal (Hero)"
-              currentImage={content.heroImage}
-              onImageSelect={(url) => handleChange('heroImage', url)}
+              currentImages={content.heroImage ? [content.heroImage] : []}
+              onImagesSelect={(urls) => handleChange('heroImage', urls[0] || '')}
+              multiple={false}
             />
             <ImageUpload
               label="Imagem Sobre Nós"
-              currentImage={content.aboutImage}
-              onImageSelect={(url) => handleChange('aboutImage', url)}
+              currentImages={content.aboutImage ? [content.aboutImage] : []}
+              onImagesSelect={(urls) => handleChange('aboutImage', urls[0] || '')}
+              multiple={false}
             />
           </div>
         </div>
