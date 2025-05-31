@@ -1,7 +1,8 @@
 // This is your Prisma schema file
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_URL")
+  url      = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 generator client {
@@ -15,6 +16,8 @@ model User {
   password      String
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
+
+  @@map("users")
 }
 
 model Anuncio {
@@ -28,6 +31,36 @@ model Anuncio {
   contato         String
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
+
+  @@map("anuncios")
+}
+
+model Review {
+  id            String    @id @default(cuid())
+  nome          String
+  avatar        String?   // URL da foto ou iniciais
+  nota          Int       // 1-5 estrelas
+  comentario    String
+  servico       String?   // Tipo de serviço prestado
+  dataServico   DateTime? // Quando foi feito o serviço
+  ativo         Boolean   @default(true)
+  destacado     Boolean   @default(false) // Para reviews em destaque
+  source        String    @default("GOOGLE") // GOOGLE, SITE, etc
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("reviews")
+}
+
+model Configuracao {
+  id                    String  @id @default(cuid())
+  chave                 String  @unique
+  valor                 String
+  descricao             String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  @@map("configuracoes")
 }
 
 enum Status {
