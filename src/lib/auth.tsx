@@ -55,9 +55,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
         return data.role
       } else {
         console.error(`❌ [AuthContext] Erro na resposta da API:`, response.status, response.statusText)
+        setUserRole(null)
       }
     } catch (error) {
       console.error('❌ [AuthContext] Erro ao buscar role do usuário:', error)
+      setUserRole(null)
     }
     return null
   }
@@ -80,11 +82,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
       
       // Se chegou aqui, provavelmente o usuário não existe na tabela
       console.log(`🆕 [AuthContext] Usuário não existe na tabela, criando...`)
-      console.log(`📝 [AuthContext] Dados do usuário:`, {
-        id: user.id,
-        email: user.email,
-        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuário'
-      })
       
       const createResponse = await fetch('/api/users', {
         method: 'POST',
@@ -107,22 +104,20 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setUserRole(newRole)
         return newRole
       } else {
-        const errorText = await createResponse.text()
-        console.error(`❌ [AuthContext] Erro ao criar usuário:`, createResponse.status, errorText)
-        
         // Se deu erro 409 (usuário já exists), tentar buscar novamente
         if (createResponse.status === 409) {
           console.log(`♻️ [AuthContext] Usuário já existe, tentando buscar role novamente...`)
           return await fetchUserRole(user.id)
         }
         
-        // Tentar buscar novamente como fallback
-        return await fetchUserRole(user.id)
+        console.error(`❌ [AuthContext] Erro ao criar usuário:`, createResponse.status)
+        setUserRole(null)
+        return null
       }
     } catch (error) {
       console.error('❌ [AuthContext] Erro ao verificar/criar usuário:', error)
-      // Fallback para buscar role
-      return await fetchUserRole(user.id)
+      setUserRole(null)
+      return null
     }
   }
 
@@ -133,24 +128,30 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   useEffect(() => {
+    let mounted = true
+    
     // Verificar se há uma sessão ativa
     const getSession = async () => {
       try {
         const { data: { session }, error } = await supabase.auth.getSession()
         if (error) {
           console.error('Erro ao obter sessão:', error.message)
-        } else {
+        } else if (mounted) {
           setSession(session)
           setUser(session?.user ?? null)
           
           if (session?.user) {
             await ensureUserExists(session.user)
+          } else {
+            setUserRole(null)
           }
         }
       } catch (error) {
         console.error('Erro inesperado ao obter sessão:', error)
       } finally {
-        setLoading(false)
+        if (mounted) {
+          setLoading(false)
+        }
       }
     }
 
@@ -159,10 +160,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // Escutar mudanças de autenticação
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return
+        
         console.log('Auth state changed:', event, session?.user?.email)
         
         setSession(session)
         setUser(session?.user ?? null)
+        setLoading(false)
         
         if (session?.user) {
           // Usar ensureUserExists para criar usuário se não existir
@@ -170,8 +174,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
         } else {
           setUserRole(null)
         }
-        
-        setLoading(false)
 
         // Só mostrar toast para eventos reais de login/logout, não para mudanças internas
         if (event === 'SIGNED_IN' && lastToastEvent !== 'SIGNED_IN') {
@@ -184,7 +186,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signUp = async (email: string, password: string, name?: string): Promise<{ success: boolean; error?: string }> => {
