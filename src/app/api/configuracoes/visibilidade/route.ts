@@ -117,9 +117,4 @@ export async function PUT(request: NextRequest) {
       { status: 500 }
     )
   }
-}
-
-// Função para limpar conexões quando necessário
-export async function cleanup() {
-  await prisma.$disconnect()
 } 
