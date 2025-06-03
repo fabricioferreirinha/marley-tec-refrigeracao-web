@@ -37,8 +37,16 @@ const nextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', '@prisma/client'],
   },
-  // Mudança do Next.js 15: serverComponentsExternalPackages -> serverExternalPackages
-  serverExternalPackages: ['prisma'],
+  // Configurações específicas para Prisma no Vercel
+  serverExternalPackages: ['prisma', '@prisma/client'],
+  
+  // Configuração Webpack para Prisma
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      config.externals.push('@prisma/client')
+    }
+    return config
+  },
   
   // Configurar todas as API routes como dinâmicas por padrão
   async headers() {
