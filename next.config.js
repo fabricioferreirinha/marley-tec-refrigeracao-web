@@ -33,33 +33,7 @@ const nextConfig = {
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
-  // Configurações para resolver ChunkLoadError e debug
-  webpack: (config, { dev, isServer }) => {
-    if (!dev) {
-      console.log('🔥 USANDO TURBOPACK NA PRODUÇÃO!');
-    }
-    
-    if (dev && !isServer) {
-      // Configurações específicas para desenvolvimento no client
-      config.optimization = {
-        ...config.optimization,
-        splitChunks: {
-          ...config.optimization.splitChunks,
-          chunks: 'all',
-          cacheGroups: {
-            ...config.optimization.splitChunks.cacheGroups,
-            default: {
-              minChunks: 1,
-              priority: -20,
-              reuseExistingChunk: true,
-            },
-          },
-        },
-      }
-    }
-    return config
-  },
-  // Configuração para Next.js 15 - serverExternalPackages (estava serverComponentsExternalPackages)
+  // Configuração para Next.js 15 - serverExternalPackages
   experimental: {
     optimizePackageImports: ['lucide-react', '@prisma/client'],
   },

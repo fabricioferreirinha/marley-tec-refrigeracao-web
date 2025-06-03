@@ -4,12 +4,13 @@ import { prisma, withRetry } from '@/lib/prisma'
 // GET - Buscar review por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const review = await withRetry(async () => {
       return await prisma.review.findUnique({
-        where: { id: params.id }
+        where: { id }
       })
     })
 
@@ -37,15 +38,16 @@ export async function GET(
 // PUT - Atualizar review
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     
     const review = await withRetry(async () => {
       // Verificar se o review existe
       const existingReview = await prisma.review.findUnique({
-        where: { id: params.id }
+        where: { id }
       })
 
       if (!existingReview) {
@@ -54,7 +56,7 @@ export async function PUT(
 
       // Atualizar review
       return await prisma.review.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           nome: body.nome,
           avatar: body.avatar,
@@ -94,13 +96,14 @@ export async function PUT(
 // DELETE - Deletar review
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     await withRetry(async () => {
       // Verificar se o review existe
       const existingReview = await prisma.review.findUnique({
-        where: { id: params.id }
+        where: { id }
       })
 
       if (!existingReview) {
@@ -109,7 +112,7 @@ export async function DELETE(
 
       // Deletar review
       await prisma.review.delete({
-        where: { id: params.id }
+        where: { id }
       })
     })
 

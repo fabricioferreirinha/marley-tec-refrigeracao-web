@@ -4,12 +4,13 @@ import { prisma, withRetry } from '@/lib/prisma'
 // GET - Buscar anúncio por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const anuncio = await withRetry(async () => {
       return await prisma.anuncio.findUnique({
-        where: { id: params.id }
+        where: { id }
       })
     })
 
@@ -37,9 +38,10 @@ export async function GET(
 // PUT - Atualizar anúncio
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const body = await request.json()
     const {
       titulo,
@@ -58,7 +60,7 @@ export async function PUT(
     const anuncio = await withRetry(async () => {
       // Verificar se o anúncio existe
       const existingAnuncio = await prisma.anuncio.findUnique({
-        where: { id: params.id }
+        where: { id }
       })
 
       if (!existingAnuncio) {
@@ -67,7 +69,7 @@ export async function PUT(
 
       // Atualizar anúncio
       return await prisma.anuncio.update({
-        where: { id: params.id },
+        where: { id },
         data: {
           titulo,
           descricao,
@@ -109,13 +111,14 @@ export async function PUT(
 // DELETE - Deletar anúncio
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     await withRetry(async () => {
       // Verificar se o anúncio existe
       const existingAnuncio = await prisma.anuncio.findUnique({
-        where: { id: params.id }
+        where: { id }
       })
 
       if (!existingAnuncio) {
@@ -124,7 +127,7 @@ export async function DELETE(
 
       // Deletar anúncio
       await prisma.anuncio.delete({
-        where: { id: params.id }
+        where: { id }
       })
     })
 

@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { prisma, withRetry } from '@/lib/prisma'
 
 // GET - Buscar role do usuário
-export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
     console.log(`🔍 Buscando role para usuário: ${id}`)
 
     // Buscar o usuário na tabela User
@@ -38,9 +38,9 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
 }
 
 // PUT - Atualizar role do usuário
-export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
     const { role } = body
 
