@@ -59,12 +59,12 @@ const nextConfig = {
     }
     return config
   },
-  // Configuração para evitar timeouts de chunk loading e melhorar suporte ao Prisma
+  // Configuração para Next.js 15 - serverExternalPackages (estava serverComponentsExternalPackages)
   experimental: {
-    turbo: {},
     optimizePackageImports: ['lucide-react', '@prisma/client'],
-    serverComponentsExternalPackages: ['prisma'],
   },
+  // Mudança do Next.js 15: serverComponentsExternalPackages -> serverExternalPackages
+  serverExternalPackages: ['prisma'],
   
   // Configurar todas as API routes como dinâmicas por padrão
   async headers() {
