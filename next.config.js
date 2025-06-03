@@ -35,10 +35,10 @@ const nextConfig = {
   },
   // Configuração para Next.js 15 - serverExternalPackages
   experimental: {
-    optimizePackageImports: ['lucide-react', '@prisma/client'],
+    optimizePackageImports: ['lucide-react'],
   },
   // Configurações específicas para Prisma no Vercel
-  serverExternalPackages: ['prisma', '@prisma/client'],
+  serverExternalPackages: ['prisma'],
   
   // Configuração Webpack para Prisma
   webpack: (config, { isServer }) => {
