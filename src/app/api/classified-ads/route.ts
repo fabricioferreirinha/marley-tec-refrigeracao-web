@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
     const active = searchParams.get('active')
     const limit = parseInt(searchParams.get('limit') || '6')
 
-    const where = active === 'true' ? { status: 'ATIVO' } : {}
+    const where = active === 'true' ? { status: 'ATIVO' as const } : {}
 
     const classifiedAds = await prisma.anuncio.findMany({
       where,
