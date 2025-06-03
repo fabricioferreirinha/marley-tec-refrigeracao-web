@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { prisma, withRetry, executeWithFreshClient } from '@/lib/prisma'
 
+// Marcar como dinâmica para evitar erro de renderização estática
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 export async function GET(request: NextRequest) {
   try {
     console.log('🔍 [Reviews API] Buscando reviews...')

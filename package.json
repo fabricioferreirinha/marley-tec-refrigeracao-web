@@ -4,7 +4,8 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "next dev --turbo",
-    "build": "prisma generate && next build",
+    "build": "NODE_ENV=production prisma generate && next build --turbo",
+    "vercel-build": "prisma generate && next build --turbo",
     "start": "next start",
     "lint": "next lint"
   },

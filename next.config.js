@@ -33,8 +33,12 @@ const nextConfig = {
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
-  // Configurações para resolver ChunkLoadError
+  // Configurações para resolver ChunkLoadError e debug
   webpack: (config, { dev, isServer }) => {
+    if (!dev) {
+      console.log('🔥 USANDO TURBOPACK NA PRODUÇÃO!');
+    }
+    
     if (dev && !isServer) {
       // Configurações específicas para desenvolvimento no client
       config.optimization = {
@@ -57,6 +61,7 @@ const nextConfig = {
   },
   // Configuração para evitar timeouts de chunk loading e melhorar suporte ao Prisma
   experimental: {
+    turbo: {},
     optimizePackageImports: ['lucide-react', '@prisma/client'],
     serverComponentsExternalPackages: ['prisma'],
   },
