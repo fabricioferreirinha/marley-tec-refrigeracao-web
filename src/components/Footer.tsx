@@ -1,9 +1,76 @@
-import React from 'react'
+'use client'
+
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { MapPin, Phone, Clock, Mail, Star, Snowflake, Wrench, Shield, Award } from 'lucide-react'
+import Image from 'next/image'
+import { MapPin, Phone, Clock, Mail, Star, Wrench, Shield, Award } from 'lucide-react'
 
 export default function Footer() {
+  const [stats, setStats] = useState({
+    mediaNotas: 5.0,
+    totalReviews: 127
+  })
+  const [configuracoes, setConfiguracoes] = useState({
+    telefone: '(21) 99749-6201',
+    horario_funcionamento: 'Seg-Sex: 8h às 18h',
+    horario_emergencia: 'Disponível 24h',
+    cnpj: '37.481.212/0001-48',
+    endereco: 'Maricá-RJ e Região',
+    emergencia_24h: 'false'
+  })
+  const [loading, setLoading] = useState(true)
   const currentYear = new Date().getFullYear()
+
+  useEffect(() => {
+    fetchStats()
+    fetchConfiguracoes()
+  }, [])
+
+  const fetchStats = async () => {
+    try {
+      // Primeiro tentar buscar estatísticas editáveis
+      const statsResponse = await fetch('/api/reviews/stats')
+      
+      if (statsResponse.ok) {
+        const statsData = await statsResponse.json()
+        setStats({
+          mediaNotas: statsData.mediaNotas || 5.0,
+          totalReviews: statsData.quantidadeTotal || 127
+        })
+      } else {
+        // Fallback para estatísticas da API de reviews
+        const response = await fetch('/api/reviews?ativo=true&limit=1')
+        const data = await response.json()
+        
+        if (response.ok && data.stats) {
+          setStats({
+            mediaNotas: data.stats.mediaNotas || 5.0,
+            totalReviews: data.stats.totalReviews || 127
+          })
+        }
+      }
+    } catch (error) {
+      console.error('Erro ao carregar estatísticas:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchConfiguracoes = async () => {
+    try {
+      const response = await fetch('/api/configuracoes')
+      const data = await response.json()
+      
+      if (response.ok && data.configuracoes) {
+        setConfiguracoes(prev => ({
+          ...prev,
+          ...data.configuracoes
+        }))
+      }
+    } catch (error) {
+      console.error('Erro ao carregar configurações:', error)
+    }
+  }
 
   const services = [
     'Ar-Condicionado Split',
@@ -18,9 +85,13 @@ export default function Footer() {
     { name: 'Início', href: '#' },
     { name: 'Serviços', href: '#servicos' },
     { name: 'Avaliações', href: '#reviews' },
+    { name: 'Classificados', href: '/classificados' },
     { name: 'Contato', href: '#contato' },
-    { name: 'Orçamento Grátis', href: 'https://wa.me/5521997496201' },
+    { name: 'Orçamento Grátis', href: `https://wa.me/55${configuracoes.telefone.replace(/\D/g, '')}` },
   ]
+
+  const emergencia24h = configuracoes.emergencia_24h === 'true'
+  const whatsappUrl = `https://wa.me/55${configuracoes.telefone.replace(/\D/g, '')}`
 
   return (
     <footer className="bg-gray-900 text-white relative overflow-hidden">
@@ -39,18 +110,24 @@ export default function Footer() {
             {/* Company Info */}
             <div className="lg:col-span-1 space-y-6">
               <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl flex items-center justify-center">
-                  <Snowflake className="w-6 h-6 text-white" />
+                <div className="w-16 h-16 rounded-xl flex items-center justify-center p-1">
+                  <Image
+                    src="/logo.svg"
+                    alt="Marley Tec Logo"
+                    width={60}
+                    height={60}
+                    className="w-full h-full object-contain"
+                  />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-bold">Marley Tec</h3>
-                  <p className="text-blue-400 font-medium">Técnico em Refrigeração</p>
+                  <h3 className="text-2xl font-bold">MARLEY-TEC</h3>
+                  <p className="text-blue-400 font-medium">Refrigeração</p>
                 </div>
               </div>
               
               <p className="text-gray-300 leading-relaxed">
                 Mais de 15 anos de experiência em conserto e instalação de equipamentos de refrigeração. 
-                Seu técnico de confiança em Maricá-RJ.
+                Seu técnico de confiança em {configuracoes.endereco}.
               </p>
 
               {/* Credenciais */}
@@ -65,7 +142,9 @@ export default function Footer() {
                 </div>
                 <div className="flex items-center space-x-3 text-yellow-400">
                   <Star className="w-5 h-5 fill-current" />
-                  <span className="font-medium">5.0 (127 avaliações)</span>
+                  <span className="font-medium">
+                    {loading ? '5.0 (127 avaliações)' : `${stats.mediaNotas.toFixed(1)} (${stats.totalReviews} avaliações)`}
+                  </span>
                 </div>
               </div>
             </div>
@@ -80,7 +159,7 @@ export default function Footer() {
                 {services.map((service, index) => (
                   <li key={index}>
                     <Link 
-                      href="https://wa.me/5521997496201"
+                      href={whatsappUrl}
                       className="text-gray-300 hover:text-blue-400 transition-colors duration-300 flex items-start group"
                     >
                       <span className="w-2 h-2 bg-blue-400 rounded-full mr-3 mt-2 group-hover:bg-orange-400 transition-colors"></span>
@@ -120,10 +199,10 @@ export default function Footer() {
                   <div>
                     <p className="text-gray-300 text-sm font-medium">WhatsApp</p>
                     <Link 
-                      href="https://wa.me/5521997496201"
+                      href={whatsappUrl}
                       className="text-green-400 hover:text-green-300 font-semibold transition-colors"
                     >
-                      (21) 99749-6201
+                      {configuracoes.telefone}
                     </Link>
                   </div>
                 </div>
@@ -134,7 +213,7 @@ export default function Footer() {
                   </div>
                   <div>
                     <p className="text-gray-300 text-sm font-medium">Localização</p>
-                    <p className="text-blue-400 font-semibold">Maricá-RJ e Região</p>
+                    <p className="text-blue-400 font-semibold">{configuracoes.endereco}</p>
                   </div>
                 </div>
 
@@ -144,15 +223,17 @@ export default function Footer() {
                   </div>
                   <div>
                     <p className="text-gray-300 text-sm font-medium">Horário</p>
-                    <p className="text-orange-400 font-semibold">24h Emergência</p>
-                    <p className="text-gray-400 text-sm">Seg-Dom: 7h às 22h</p>
+                    <p className="text-orange-400 font-semibold">{configuracoes.horario_funcionamento}</p>
+                    {emergencia24h && (
+                      <p className="text-gray-400 text-sm">{configuracoes.horario_emergencia}</p>
+                    )}
                   </div>
                 </div>
               </div>
 
               {/* CTA Button */}
               <Link
-                href="https://wa.me/5521997496201"
+                href={whatsappUrl}
                 className="inline-flex items-center justify-center w-full px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold rounded-xl transition-all duration-300 transform hover:-translate-y-1 shadow-lg hover:shadow-green-500/25"
               >
                 <Phone className="w-5 h-5 mr-2" />
@@ -172,7 +253,7 @@ export default function Footer() {
                 © {currentYear} <span className="text-white font-semibold">Marley Tec</span>. Todos os direitos reservados.
               </p>
               <p className="text-gray-500 text-sm mt-1">
-                Técnico em Refrigeração • Maricá-RJ • CNPJ: XX.XXX.XXX/0001-XX
+                Técnico em Refrigeração • {configuracoes.endereco} • CNPJ: {configuracoes.cnpj}
               </p>
             </div>
 
@@ -188,29 +269,33 @@ export default function Footer() {
               </div>
               <div className="flex items-center space-x-2 text-yellow-400">
                 <Star className="w-5 h-5 fill-current" />
-                <span className="text-sm font-medium">5.0 Estrelas</span>
+                <span className="text-sm font-medium">
+                  {loading ? '5.0 Estrelas' : `${stats.mediaNotas.toFixed(1)} Estrelas`}
+                </span>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Emergency Banner */}
-        <div className="bg-gradient-to-r from-red-600 to-orange-600 -mx-4 px-4 py-4 mb-0">
-          <div className="text-center">
-            <p className="text-white font-bold text-lg">
-              🚨 <span className="animate-pulse">EMERGÊNCIA 24H</span> 🚨
-            </p>
-            <p className="text-red-100 text-sm">
-              Seu eletrodoméstico parou? Chame agora: 
-              <Link 
-                href="https://wa.me/5521997496201" 
-                className="text-white font-bold hover:text-yellow-300 transition-colors ml-1"
-              >
-                (21) 99749-6201
-              </Link>
-            </p>
+        {/* Emergency Banner - Só mostra se emergencia_24h estiver ativo */}
+        {emergencia24h && (
+          <div className="bg-gradient-to-r from-red-600 to-orange-600 -mx-4 px-4 py-4 mb-0">
+            <div className="text-center">
+              <p className="text-white font-bold text-lg">
+                🚨 <span className="animate-pulse">EMERGÊNCIA 24H</span> 🚨
+              </p>
+              <p className="text-red-100 text-sm">
+                Seu eletrodoméstico parou? Chame agora: 
+                <Link 
+                  href={whatsappUrl} 
+                  className="text-white font-bold hover:text-yellow-300 transition-colors ml-1"
+                >
+                  {configuracoes.telefone}
+                </Link>
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     </footer>
   )

@@ -1,7 +1,7 @@
 import * as React from "react"
 import * as ToastPrimitives from "@radix-ui/react-toast"
 import { cva, type VariantProps } from "class-variance-authority"
-import { X } from "lucide-react"
+import { X, CheckCircle, AlertCircle, Loader2 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 
@@ -29,7 +29,9 @@ const toastVariants = cva(
       variant: {
         default: "border bg-background text-foreground",
         destructive:
-          "destructive group border-destructive bg-destructive text-destructive-foreground",
+          "destructive border-destructive bg-destructive text-destructive-foreground",
+        success: "border-green-200 bg-green-50 text-green-800",
+        loading: "border-blue-200 bg-blue-50 text-blue-800",
       },
     },
     defaultVariants: {
@@ -113,6 +115,28 @@ ToastDescription.displayName = ToastPrimitives.Description.displayName
 type ToastProps = React.ComponentPropsWithoutRef<typeof Toast>
 
 type ToastActionElement = React.ReactElement<typeof ToastAction>
+
+// Funções helper para diferentes tipos de toast
+export const toastSuccess = (title: string, description?: string) => ({
+  variant: "success" as const,
+  title,
+  description,
+  icon: <CheckCircle className="h-5 w-5" />,
+})
+
+export const toastError = (title: string, description?: string) => ({
+  variant: "destructive" as const,
+  title,
+  description,
+  icon: <AlertCircle className="h-5 w-5" />,
+})
+
+export const toastLoading = (title: string, description?: string) => ({
+  variant: "loading" as const,
+  title,
+  description,
+  icon: <Loader2 className="h-5 w-5 animate-spin" />,
+})
 
 export {
   type ToastProps,

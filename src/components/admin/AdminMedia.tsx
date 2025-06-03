@@ -26,7 +26,7 @@ const AdminMedia = () => {
     googleProfile: 'https://g.co/kgs/3p9v632',
     companyName: 'Marley-Tec Refrigeração',
     heroTitle: 'Marley-Tec Refrigeração',
-    heroSubtitle: 'Especialistas em refrigeração e climatização em Maricá-RJ',
+    heroSubtitle: 'Especialista em refrigeração e climatização em Maricá-RJ',
     aboutText: 'Com mais de 10 anos de experiência no mercado, a Marley-Tec é especializada em manutenção e instalação de equipamentos de refrigeração e climatização.'
   });
 

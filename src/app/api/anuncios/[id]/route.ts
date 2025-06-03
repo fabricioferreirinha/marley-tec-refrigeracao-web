@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma, withRetry } from '@/lib/prisma'
 
 // GET - Buscar anúncio por ID
 export async function GET(
@@ -9,8 +7,10 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
-    const anuncio = await prisma.anuncio.findUnique({
-      where: { id: params.id }
+    const anuncio = await withRetry(async () => {
+      return await prisma.anuncio.findUnique({
+        where: { id: params.id }
+      })
     })
 
     if (!anuncio) {
@@ -24,7 +24,11 @@ export async function GET(
   } catch (error) {
     console.error('Erro ao buscar anúncio:', error)
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { 
+        error: 'Erro interno do servidor',
+        details: error instanceof Error ? error.message : 'Erro desconhecido',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   }
@@ -37,26 +41,66 @@ export async function PUT(
 ) {
   try {
     const body = await request.json()
-    const { titulo, descricao, preco, imagens, status, contato } = body
+    const {
+      titulo,
+      descricao,
+      preco,
+      categoria,
+      condicao,
+      localizacao,
+      imagens,
+      contato,
+      whatsappMessage,
+      destaque,
+      status
+    } = body
 
-    const anuncio = await prisma.anuncio.update({
-      where: { id: params.id },
-      data: {
-        ...(titulo && { titulo }),
-        ...(descricao && { descricao }),
-        ...(preco && { preco: parseFloat(preco) }),
-        ...(imagens && { imagens }),
-        ...(status && { status }),
-        ...(contato && { contato }),
-        updatedAt: new Date()
+    const anuncio = await withRetry(async () => {
+      // Verificar se o anúncio existe
+      const existingAnuncio = await prisma.anuncio.findUnique({
+        where: { id: params.id }
+      })
+
+      if (!existingAnuncio) {
+        throw new Error('Anúncio não encontrado')
       }
+
+      // Atualizar anúncio
+      return await prisma.anuncio.update({
+        where: { id: params.id },
+        data: {
+          titulo,
+          descricao,
+          preco: parseFloat(preco),
+          categoria,
+          condicao,
+          localizacao,
+          imagens,
+          contato,
+          whatsappMessage,
+          destaque,
+          status
+        }
+      })
     })
 
     return NextResponse.json(anuncio)
   } catch (error) {
     console.error('Erro ao atualizar anúncio:', error)
+    
+    if (error instanceof Error && error.message === 'Anúncio não encontrado') {
+      return NextResponse.json(
+        { error: 'Anúncio não encontrado' },
+        { status: 404 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { 
+        error: 'Erro interno do servidor',
+        details: error instanceof Error ? error.message : 'Erro desconhecido',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   }
@@ -68,15 +112,39 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await prisma.anuncio.delete({
-      where: { id: params.id }
+    await withRetry(async () => {
+      // Verificar se o anúncio existe
+      const existingAnuncio = await prisma.anuncio.findUnique({
+        where: { id: params.id }
+      })
+
+      if (!existingAnuncio) {
+        throw new Error('Anúncio não encontrado')
+      }
+
+      // Deletar anúncio
+      await prisma.anuncio.delete({
+        where: { id: params.id }
+      })
     })
 
-    return NextResponse.json({ message: 'Anúncio deletado com sucesso' })
+    return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Erro ao deletar anúncio:', error)
+    
+    if (error instanceof Error && error.message === 'Anúncio não encontrado') {
+      return NextResponse.json(
+        { error: 'Anúncio não encontrado' },
+        { status: 404 }
+      )
+    }
+
     return NextResponse.json(
-      { error: 'Erro interno do servidor' },
+      { 
+        error: 'Erro interno do servidor',
+        details: error instanceof Error ? error.message : 'Erro desconhecido',
+        timestamp: new Date().toISOString()
+      },
       { status: 500 }
     )
   }

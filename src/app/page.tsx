@@ -3,7 +3,9 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import ReviewsCarousel from '@/components/ReviewsCarousel'
+import GoogleStyleReviews from '@/components/GoogleStyleReviews'
+import ConditionalClassifiedAdsCarousel from '@/components/ConditionalClassifiedAdsCarousel'
+import BrandsCarousel from '@/components/BrandsCarousel'
 import Footer from '@/components/Footer'
 import { ArrowRight, Star, Shield, Clock, MapPin, Phone, CheckCircle, Snowflake, Zap, Wrench, Award } from 'lucide-react'
 
@@ -64,13 +66,13 @@ export default function HomePage() {
           <div className="flex items-center justify-between">
             {/* Logo */}
             <div className="flex items-center space-x-3">
-              <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-1">
+              <div className="w-16 h-16 hover:bg-red-600 rounded-xl flex items-center justify-center p-1 transition-all duration-300 cursor-pointer group">
                 <Image
                   src="/logo.svg"
                   alt="Marley Tec Logo"
                   width={56}
                   height={56}
-                  className="w-full h-full object-contain"
+                  className="w-full h-full object-contain transition-all duration-300 group-hover:brightness-0 group-hover:invert"
                 />
               </div>
               <div>
@@ -87,8 +89,14 @@ export default function HomePage() {
               </div>
               <div className="flex items-center space-x-2 text-gray-700">
                 <Clock className="w-4 h-4 text-green-600" />
-                <span className="font-medium">24h Emergência</span>
+                <span className="font-medium">Atendimento Rápido</span>
               </div>
+              <Link
+                href="/classificados"
+                className="text-gray-700 hover:text-blue-600 font-medium transition-colors"
+              >
+                Classificados
+              </Link>
               <Link
                 href="https://wa.me/5521997496201"
                 className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-semibold transition-colors flex items-center space-x-2"
@@ -178,7 +186,7 @@ export default function HomePage() {
                 {/* Imagem do técnico */}
                       <div className="relative flex justify-center">
                   <Image
-                          src="/tecnico.webp"
+                          src="/tecnico.png"
                           alt="Marley Tec - Técnico Especialista em Refrigeração Maricá-RJ"
                           width={401}
                           height={481}
@@ -188,24 +196,24 @@ export default function HomePage() {
                       </div>
                       
                       {/* Badges flutuantes externos - clean */}
-                      <div className="absolute top-16 -right-10 bg-green-500 text-white px-4 py-2 rounded-full shadow-xl z-40 border-2 border-white">
+                      <div className="absolute top-32 -right-6 sm:-right-6 md:-right-6 bg-green-500 text-white px-3 sm:px-4 py-2 rounded-xl shadow-xl z-40 border-2 border-white transform rotate-3">
                         <div className="flex items-center space-x-1">
-                          <Award className="w-4 h-4" />
-                          <span className="text-sm font-bold">Certificado</span>
+                          <Award className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="text-xs sm:text-sm font-bold">Certificado</span>
                         </div>
                       </div>
                       
-                      <div className="absolute bottom-12 -left-10 bg-red-500 text-white px-4 py-2 rounded-xl shadow-xl z-40 border-2 border-white transform -rotate-12">
+                      <div className="absolute bottom-12 -left-8 sm:-left-10 bg-red-500 text-white px-3 sm:px-4 py-2 rounded-xl shadow-xl z-40 border-2 border-white transform -rotate-12">
                         <div className="flex items-center space-x-1">
-                          <Clock className="w-4 h-4" />
-                          <span className="text-sm font-bold">24h Emergência</span>
+                          <Clock className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="text-xs sm:text-sm font-bold">Atendimento Rápido</span>
                         </div>
                       </div>
                       
-                      <div className="absolute top-1/3 -left-8 bg-orange-500 text-white px-3 py-2 rounded-xl shadow-xl z-40 border-2 border-white transform rotate-6">
+                      <div className="absolute top-1/3 -left-6 sm:-left-8 bg-orange-500 text-white px-2 sm:px-3 py-2 rounded-xl shadow-xl z-40 border-2 border-white transform rotate-6">
                         <div className="flex items-center space-x-1">
-                          <MapPin className="w-4 h-4" />
-                          <span className="text-sm font-bold">Maricá-RJ</span>
+                          <MapPin className="w-3 h-3 sm:w-4 sm:h-4" />
+                          <span className="text-xs sm:text-sm font-bold">Maricá-RJ</span>
                         </div>
                       </div>
                     </div>
@@ -251,9 +259,9 @@ export default function HomePage() {
               {/* 24h Disponível */}
               <div className="group">
                 <div className="text-4xl lg:text-5xl font-black text-orange-300 mb-2 group-hover:scale-110 transition-transform duration-300">
-                  24h
+                  100%
             </div>
-                <div className="text-white font-semibold">Sempre Disponível</div>
+                <div className="text-white font-semibold">Satisfação Garantida</div>
             </div>
               
             </div>
@@ -267,14 +275,13 @@ export default function HomePage() {
         </div>
       </section>
 
+        {/* Carrossel de Marcas */}
+        <BrandsCarousel />
+
         {/* Seção de Serviços Redesigned */}
         <section id="servicos" className="py-24 bg-gray-50">
         <div className="container mx-auto px-4">
             <div className="text-center mb-20">
-              <div className="inline-flex items-center px-6 py-3 bg-blue-100 text-blue-800 rounded-full font-semibold mb-6">
-                <Wrench className="w-5 h-5 mr-2" />
-                Serviços Especializados
-              </div>
               <h2 className="text-4xl lg:text-6xl font-black mb-6 text-gray-900">
                 Soluções Completas em{' '}
                 <span className="bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">
@@ -454,13 +461,6 @@ export default function HomePage() {
                       <Phone className="w-6 h-6" />
                       <span>📱 Chamar Técnico AGORA</span>
                     </Link>
-                    <Link
-                      href="#reviews"
-                      className="bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white px-10 py-5 rounded-2xl font-bold text-xl border border-white/30 transition-all duration-300 flex items-center justify-center space-x-3"
-                    >
-                      <Star className="w-6 h-6" />
-                      <span>Ver Avaliações (127)</span>
-                    </Link>
                   </div>
                 </div>
               </div>
@@ -470,8 +470,11 @@ export default function HomePage() {
 
         {/* Reviews Section */}
         <section id="reviews" className="py-20">
-          <ReviewsCarousel />
+          <GoogleStyleReviews />
         </section>
+
+        {/* Classificados Section */}
+        <ConditionalClassifiedAdsCarousel />
 
         {/* Seção de Contato Final */}
         <section className="py-24 bg-gray-900 text-white relative overflow-hidden">
@@ -489,7 +492,7 @@ export default function HomePage() {
               </h2>
               
               <p className="text-xl lg:text-2xl text-gray-300 mb-12 leading-relaxed">
-                Atendimento <strong className="text-white">24 horas</strong> em Maricá-RJ. 
+                Atendimento <strong className="text-white">Rápido</strong> em Maricá-RJ. 
                 <span className="text-green-400"> Diagnóstico gratuito</span> e 
                 <span className="text-blue-400"> garantia em todos os serviços</span>.
               </p>
@@ -514,7 +517,7 @@ export default function HomePage() {
                     <Clock className="w-8 h-8" />
                   </div>
                   <h3 className="text-xl font-bold mb-2">Horário</h3>
-                  <p className="text-gray-400">24h Emergência</p>
+                  <p className="text-gray-400">Atendimento Rápido</p>
                 </div>
               </div>
 

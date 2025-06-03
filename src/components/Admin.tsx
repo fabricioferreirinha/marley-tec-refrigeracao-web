@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import AdminLogin from './admin/AdminLogin';
 import AdminHeader from './admin/AdminHeader';
@@ -7,6 +6,8 @@ import AdminDashboard from './admin/AdminDashboard';
 import AdminProducts from './admin/AdminProducts';
 import AdminMedia from './admin/AdminMedia';
 import AdminContent from './admin/AdminContent';
+import AdminClassifieds from './AdminClassifieds';
+import AdminConfiguracoes from './AdminConfiguracoes';
 
 const Admin = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -34,9 +35,10 @@ const Admin = () => {
           
           <div className="flex-1">
             {activeTab === 'dashboard' && <AdminDashboard />}
-            {activeTab === 'products' && <AdminProducts />}
+            {activeTab === 'products' && <AdminClassifieds />}
             {activeTab === 'media' && <AdminMedia />}
             {activeTab === 'content' && <AdminContent />}
+            {activeTab === 'configuracoes' && <AdminConfiguracoes />}
           </div>
         </div>
       </div>

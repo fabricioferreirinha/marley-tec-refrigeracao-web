@@ -1,6 +1,5 @@
-
 import React from 'react';
-import { BarChart3, Package, FileText, Image } from 'lucide-react';
+import { BarChart3, Package, FileText, Image, Settings } from 'lucide-react';
 
 interface AdminSidebarProps {
   activeTab: string;
@@ -12,7 +11,8 @@ const AdminSidebar = ({ activeTab, setActiveTab }: AdminSidebarProps) => {
     { id: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { id: 'products', label: 'Classificados', icon: Package },
     { id: 'media', label: 'Conteúdo e Mídia', icon: Image },
-    { id: 'content', label: 'Configurações', icon: FileText },
+    { id: 'content', label: 'Páginas', icon: FileText },
+    { id: 'configuracoes', label: 'Configurações', icon: Settings },
   ];
 
   return (

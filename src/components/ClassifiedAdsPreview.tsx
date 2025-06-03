@@ -198,7 +198,7 @@ const ClassifiedAdsPreview = () => {
                   <div key={pageIndex} className="min-w-full">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4">
                       {ads.slice(pageIndex * currentAdsPerPage, (pageIndex + 1) * currentAdsPerPage).map((ad) => (
-                        <div key={ad.id} className="classified-card bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group w-full max-w-sm mx-auto lg:max-w-none">
+                        <div key={ad.id} className="classified-card bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1 cursor-pointer group w-full max-w-sm mx-auto lg:max-w-none flex flex-col h-full">
                           {/* Imagem */}
                           <div 
                             className="relative h-52 bg-gray-200"
@@ -234,9 +234,9 @@ const ClassifiedAdsPreview = () => {
                             </div>
                           </div>
 
-                          {/* Conteúdo */}
+                          {/* Conteúdo - flex-1 para ocupar espaço disponível */}
                           <div 
-                            className="p-6"
+                            className="p-6 flex-1 flex flex-col"
                             onClick={() => openModal(ad)}
                           >
                             <div className="mb-3">
@@ -244,7 +244,7 @@ const ClassifiedAdsPreview = () => {
                               <p className="text-sm text-gray-500">ID: {ad.id}</p>
                             </div>
 
-                            <p className="text-gray-700 text-sm mb-4" style={{
+                            <p className="text-gray-700 text-sm mb-4 flex-1" style={{
                               display: '-webkit-box',
                               WebkitLineClamp: 2,
                               WebkitBoxOrient: 'vertical' as const,
@@ -261,8 +261,8 @@ const ClassifiedAdsPreview = () => {
                             </div>
                           </div>
 
-                          {/* Botão de Contato - Fora da área clicável */}
-                          <div className="px-6 pb-6">
+                          {/* Botão de Contato - sempre na parte inferior */}
+                          <div className="px-6 pb-6 mt-auto">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
@@ -452,7 +452,7 @@ const ClassifiedAdsPreview = () => {
                       className="w-full inline-flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 shadow-md hover:shadow-lg"
                     >
                       <MessageCircle className="w-5 h-5" />
-                      Entrar em Contato via WhatsApp
+                      Entrar em Contato
                     </button>
                     
                     <Link

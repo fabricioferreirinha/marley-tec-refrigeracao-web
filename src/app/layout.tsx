@@ -1,17 +1,27 @@
 import './globals.css'
+import { Metadata } from 'next'
 import { Inter } from 'next/font/google'
+import { Toaster } from 'sonner'
+import { AuthProvider } from '@/lib/auth'
 
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   metadataBase: new URL('https://marley-tec.com'),
   title: 'Marley Tec - Técnico em Refrigeração | Maricá-RJ | Conserto de Ar-Condicionado, Geladeira, Fogão',
-  description: 'Técnico especialista em refrigeração em Maricá-RJ. Conserto e instalação de ar-condicionado split, geladeiras, fogões, máquinas de lavar, microondas, freezers e câmaras frigoríficas. Atendimento 24h com garantia! Orçamento grátis.',
+  description: 'Técnico especialista em refrigeração em Maricá-RJ. Conserto e instalação de ar-condicionado split, geladeiras, fogões, máquinas de lavar, microondas, freezers e câmaras frigoríficas. Atendimento rápido eS com garantia! Orçamento grátis.',
   keywords: 'técnico refrigeração maricá, conserto ar condicionado maricá, técnico geladeira maricá, instalação split maricá, conserto fogão maricá, técnico máquina lavar maricá, conserto microondas maricá, técnico freezer maricá, câmara frigorífica maricá, refrigeração comercial maricá',
   authors: [{ name: 'Marley Tec' }],
   creator: 'Marley Tec',
   publisher: 'Marley Tec',
   robots: 'index, follow',
+  category: 'Serviços Técnicos',
+  classification: 'business',
+  icons: {
+    icon: '/logo.svg',
+    shortcut: '/logo.svg',
+    apple: '/logo.svg',
+  },
   openGraph: {
     type: 'website',
     locale: 'pt_BR',
@@ -31,11 +41,14 @@ export const metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Marley Tec - Técnico em Refrigeração | Maricá-RJ',
-    description: 'Técnico especialista em refrigeração em Maricá-RJ. Conserto e instalação com garantia. Atendimento 24h!',
+    description: 'Técnico especialista em refrigeração em Maricá-RJ. Conserto e instalação com garantia. Atendimento rápido!',
     images: ['/og-image.jpg'],
   },
   alternates: {
     canonical: 'https://marley-tec.com',
+  },
+  verification: {
+    google: 'your-google-verification-code', // Adicione quando tiver
   },
 }
 
@@ -43,7 +56,13 @@ export function generateViewport() {
   return {
     width: 'device-width',
     initialScale: 1,
-    themeColor: '#2563eb',
+    maximumScale: 5,
+    userScalable: true,
+    themeColor: [
+      { media: '(prefers-color-scheme: light)', color: '#2563eb' },
+      { media: '(prefers-color-scheme: dark)', color: '#1e40af' },
+    ],
+    colorScheme: 'light',
   }
 }
 
@@ -53,11 +72,12 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={inter.className}>
       <head>
         <meta charSet="utf-8" />
-        <link rel="icon" href="/favicon.ico" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+        <link rel="alternate icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/logo.svg" />
         <meta name="geo.region" content="BR-RJ" />
         <meta name="geo.placename" content="Maricá" />
         <meta name="geo.position" content="-22.9194;-42.8186" />
@@ -138,8 +158,16 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
-        {children}
+      <body className="antialiased">
+        <AuthProvider>
+          {children}
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              duration: 4000,
+            }}
+          />
+        </AuthProvider>
       </body>
     </html>
   )
