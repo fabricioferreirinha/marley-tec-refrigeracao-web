@@ -15,6 +15,7 @@ interface AuthContextType {
   signOut: () => Promise<void>
   isAdmin: boolean
   refreshUserRole: () => Promise<void>
+  renewSession?: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -29,6 +30,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [loading, setLoading] = useState(true)
   const [userRole, setUserRole] = useState<string | null>(null)
   const [lastToastEvent, setLastToastEvent] = useState<string | null>(null)
+  const [initialized, setInitialized] = useState(false)
+  const [hasShownInitialLogin, setHasShownInitialLogin] = useState(false)
+  
+  // Sistema de timeout para sessão administrativa
+  const [lastActivity, setLastActivity] = useState<number>(Date.now())
+  const [sessionWarningShown, setSessionWarningShown] = useState(false)
+  
+  // Configurações de timeout (em minutos)
+  const ADMIN_SESSION_TIMEOUT = 30 // 30 minutos
+  const WARNING_TIME = 25 // Aviso aos 25 minutos
 
   // Inicializar cliente Supabase
   const supabase = createBrowserClient(
@@ -38,10 +49,77 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const isAdmin = userRole === 'ADMIN'
   
-  // Log quando o isAdmin muda
+  // Função para renovar atividade
+  const renewActivity = () => {
+    setLastActivity(Date.now())
+    setSessionWarningShown(false)
+  }
+  
+  // Função para logout forçado por timeout
+  const forceLogout = async () => {
+    toast.error('Sessão expirada por segurança. Faça login novamente.')
+    await signOut()
+  }
+  
+  // Log quando o isAdmin muda - apenas em páginas admin
   useEffect(() => {
-    console.log(`🔐 [AuthContext] isAdmin atualizado:`, isAdmin, `(userRole: ${userRole})`)
-  }, [isAdmin, userRole])
+    const isAdminPage = window.location.pathname.startsWith('/admin')
+    if (isAdminPage && initialized) {
+      console.log(`🔐 [AuthContext] isAdmin atualizado:`, isAdmin, `(userRole: ${userRole})`)
+    }
+  }, [isAdmin, userRole, initialized])
+
+  // Sistema de monitoramento de atividade e timeout para administradores
+  useEffect(() => {
+    if (!isAdmin || !user) return
+
+    // Eventos que renovam a atividade
+    const activityEvents = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click']
+    
+    const handleActivity = () => {
+      renewActivity()
+    }
+
+    // Adicionar listeners de atividade
+    activityEvents.forEach(event => {
+      document.addEventListener(event, handleActivity, true)
+    })
+
+    // Timer para verificar timeout
+    const interval = setInterval(() => {
+      const now = Date.now()
+      const timeSinceActivity = now - lastActivity
+      const minutesSinceActivity = timeSinceActivity / (1000 * 60)
+
+      // Mostrar aviso aos 25 minutos
+      if (minutesSinceActivity >= WARNING_TIME && !sessionWarningShown) {
+        setSessionWarningShown(true)
+        toast.warning(
+          `Sua sessão expirará em ${ADMIN_SESSION_TIMEOUT - WARNING_TIME} minutos. Clique em qualquer lugar para renovar.`,
+          {
+            duration: 10000,
+            action: {
+              label: 'Renovar',
+              onClick: renewActivity
+            }
+          }
+        )
+      }
+
+      // Forçar logout aos 30 minutos
+      if (minutesSinceActivity >= ADMIN_SESSION_TIMEOUT) {
+        forceLogout()
+      }
+    }, 60000) // Verificar a cada minuto
+
+    // Cleanup
+    return () => {
+      activityEvents.forEach(event => {
+        document.removeEventListener(event, handleActivity, true)
+      })
+      clearInterval(interval)
+    }
+  }, [isAdmin, user, lastActivity, sessionWarningShown])
 
   // Buscar o role do usuário no banco
   const fetchUserRole = async (userId: string) => {
@@ -64,8 +142,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return null
   }
 
-  // Criar usuário automaticamente se não existir
+  // Criar usuário automaticamente se não existir - apenas quando necessário
   const ensureUserExists = async (user: User) => {
+    // Só executar se estiver em uma página que precisa de autenticação
+    const isAdminPage = window.location.pathname.startsWith('/admin')
+    if (!isAdminPage) {
+      return null
+    }
+
     try {
       console.log(`🔍 [AuthContext] Verificando se usuário existe: ${user.email} (ID: ${user.id})`)
       
@@ -127,6 +211,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }
 
+  // Função para renovar sessão manualmente
+  const renewSession = () => {
+    renewActivity()
+    toast.success('Sessão renovada com sucesso!')
+  }
+
   useEffect(() => {
     let mounted = true
     
@@ -140,8 +230,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
           setSession(session)
           setUser(session?.user ?? null)
           
+          // Só verificar role se tiver usuário e estiver em página que precisa
           if (session?.user) {
-            await ensureUserExists(session.user)
+            const isAdminPage = window.location.pathname.startsWith('/admin')
+            if (isAdminPage) {
+              await ensureUserExists(session.user)
+            }
           } else {
             setUserRole(null)
           }
@@ -151,6 +245,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       } finally {
         if (mounted) {
           setLoading(false)
+          setInitialized(true)
         }
       }
     }
@@ -162,26 +257,43 @@ export function AuthProvider({ children }: AuthProviderProps) {
       async (event, session) => {
         if (!mounted) return
         
-        console.log('Auth state changed:', event, session?.user?.email)
+        // Só logar eventos em páginas admin
+        const isAdminPage = window.location.pathname.startsWith('/admin')
+        if (isAdminPage) {
+          console.log('Auth state changed:', event, session?.user?.email)
+        }
         
         setSession(session)
         setUser(session?.user ?? null)
         setLoading(false)
         
         if (session?.user) {
-          // Usar ensureUserExists para criar usuário se não existir
-          await ensureUserExists(session.user)
+          // Só verificar role se estiver em página que precisa
+          if (isAdminPage) {
+            await ensureUserExists(session.user)
+          }
         } else {
           setUserRole(null)
         }
 
-        // Só mostrar toast para eventos reais de login/logout, não para mudanças internas
-        if (event === 'SIGNED_IN' && lastToastEvent !== 'SIGNED_IN') {
-          toast.success('Login realizado com sucesso!')
-          setLastToastEvent('SIGNED_IN')
-        } else if (event === 'SIGNED_OUT' && lastToastEvent !== 'SIGNED_OUT') {
+        // Controle muito restrito de toasts - apenas para ações deliberadas do usuário
+        if (event === 'SIGNED_IN' && !hasShownInitialLogin) {
+          // Só mostrar se for um login deliberado (não sessão inicial)
+          if (initialized) {
+            toast.success('Login realizado com sucesso!')
+            setLastToastEvent('SIGNED_IN')
+          }
+          setHasShownInitialLogin(true)
+        } else if (event === 'SIGNED_OUT') {
           toast.success('Logout realizado com sucesso!')
           setLastToastEvent('SIGNED_OUT')
+          setHasShownInitialLogin(false)
+        }
+        
+        // Resetar flags para outros eventos
+        if (event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED') {
+          // Estes eventos não devem gerar toasts
+          setLastToastEvent(null)
         }
       }
     )
@@ -202,59 +314,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
         password,
         options: {
           data: {
-            full_name: name || '',
-          }
-        }
+            full_name: name,
+          },
+        },
       })
 
       if (error) {
-        console.error('Erro no cadastro:', error.message)
-        
-        let errorMessage = 'Erro ao criar conta. Tente novamente.'
-        
-        if (error.message.includes('User already registered')) {
-          errorMessage = 'Este email já está cadastrado.'
-        } else if (error.message.includes('Password should be at least')) {
-          errorMessage = 'A senha deve ter pelo menos 6 caracteres.'
-        } else if (error.message.includes('Invalid email')) {
-          errorMessage = 'Email inválido.'
-        }
-        
-        return { success: false, error: errorMessage }
+        return { success: false, error: error.message }
       }
 
       if (data.user) {
-        // Criar perfil do usuário no banco de dados
-        try {
-          const response = await fetch('/api/users', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              id: data.user.id,
-              email: data.user.email,
-              name: name || data.user.email?.split('@')[0],
-            }),
-          })
-
-          if (!response.ok) {
-            console.error('Erro ao criar perfil do usuário')
-          }
-        } catch (profileError) {
-          console.error('Erro ao criar perfil:', profileError)
-        }
-
-        toast.success('Conta criada com sucesso! Verifique seu email para confirmar.')
+        toast.success('Cadastro realizado! Verifique seu email para confirmar a conta.')
       }
 
       return { success: true }
     } catch (error) {
-      console.error('Erro inesperado no cadastro:', error)
-      return { 
-        success: false, 
-        error: 'Erro inesperado. Tente novamente mais tarde.' 
-      }
+      console.error('Erro no cadastro:', error)
+      return { success: false, error: 'Erro interno do servidor' }
     } finally {
       setLoading(false)
     }
@@ -270,28 +346,29 @@ export function AuthProvider({ children }: AuthProviderProps) {
       })
 
       if (error) {
-        console.error('Erro no login:', error.message)
-        
-        let errorMessage = 'Erro ao fazer login. Tente novamente.'
+        let errorMessage = 'Erro no login'
         
         if (error.message.includes('Invalid login credentials')) {
-          errorMessage = 'Email ou senha incorretos.'
+          errorMessage = 'Email ou senha incorretos'
         } else if (error.message.includes('Email not confirmed')) {
-          errorMessage = 'Email não confirmado. Verifique sua caixa de entrada.'
+          errorMessage = 'Confirme seu email antes de fazer login'
         } else if (error.message.includes('Too many requests')) {
-          errorMessage = 'Muitas tentativas. Tente novamente em alguns minutos.'
+          errorMessage = 'Muitas tentativas. Tente novamente em alguns minutos'
         }
         
         return { success: false, error: errorMessage }
       }
 
-      return { success: true }
-    } catch (error) {
-      console.error('Erro inesperado no login:', error)
-      return { 
-        success: false, 
-        error: 'Erro inesperado. Tente novamente mais tarde.' 
+      if (data.user) {
+        // Aguardar um pouco para garantir que o contexto seja atualizado
+        await new Promise(resolve => setTimeout(resolve, 500))
+        return { success: true }
       }
+
+      return { success: false, error: 'Erro desconhecido no login' }
+    } catch (error) {
+      console.error('Erro no login:', error)
+      return { success: false, error: 'Erro interno do servidor' }
     } finally {
       setLoading(false)
     }
@@ -306,14 +383,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         toast.error('Erro ao fazer logout')
       }
     } catch (error) {
-      console.error('Erro inesperado no logout:', error)
-      toast.error('Erro inesperado ao fazer logout')
+      console.error('Erro no logout:', error)
+      toast.error('Erro ao fazer logout')
     } finally {
       setLoading(false)
     }
   }
 
-  const value = {
+  const value: AuthContextType = {
     user,
     session,
     loading,
@@ -322,14 +399,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signUp,
     signOut,
     isAdmin,
-    refreshUserRole
+    refreshUserRole,
+    renewSession,
   }
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {

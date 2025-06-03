@@ -14,11 +14,6 @@ const isDevelopment = process.env.NODE_ENV === 'development';
 const prismaConfig: Prisma.PrismaClientOptions = {
   log: isDevelopment ? ['warn', 'error'] : ['error'],
   errorFormat: 'pretty' as const,
-  datasources: {
-    db: {
-      url: process.env.POSTGRES_PRISMA_URL,
-    },
-  },
 };
 
 // Em desenvolvimento, desabilitar prepared statements para evitar conflitos
@@ -184,7 +179,7 @@ export async function withRetry<T>(
         console.log('🔄 Forçando nova conexão devido a erro de prepared statement/conexão');
         try {
           await forceNewConnection();
-          // Pausa maior para estabilizar
+          // Pausa para estabilizar
           await new Promise(resolve => setTimeout(resolve, 1000));
         } catch (resetError) {
           console.error('Erro ao resetar conexão:', resetError);
@@ -205,7 +200,7 @@ export async function withRetry<T>(
   throw lastError!;
 }
 
-// Função helper para executar queries com cliente específico
+// Função para executar operação com cliente fresco (para casos extremos)
 export async function executeWithFreshClient<T>(
   operation: (client: PrismaClient) => Promise<T>
 ): Promise<T> {

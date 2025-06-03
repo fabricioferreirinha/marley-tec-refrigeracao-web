@@ -3,6 +3,7 @@ import { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Toaster } from 'sonner'
 import { AuthProvider } from '@/lib/auth'
+import SessionStatus from '@/components/SessionStatus'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -167,6 +168,7 @@ export default function RootLayout({
               duration: 4000,
             }}
           />
+          <SessionStatus />
         </AuthProvider>
       </body>
     </html>

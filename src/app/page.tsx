@@ -61,7 +61,7 @@ export default function HomePage() {
   return (
     <>
       {/* Header/Navegação */}
-      <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-lg z-50 border-b">
+      <header className="fixed top-0 w-full bg-white/95 backdrop-blur-sm shadow-lg z-50 border-b" style={{ willChange: 'transform' }}>
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             {/* Logo */}

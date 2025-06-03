@@ -33,6 +33,32 @@ const nextConfig = {
   env: {
     CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
+  // Configurações para resolver ChunkLoadError
+  webpack: (config, { dev, isServer }) => {
+    if (dev && !isServer) {
+      // Configurações específicas para desenvolvimento no client
+      config.optimization = {
+        ...config.optimization,
+        splitChunks: {
+          ...config.optimization.splitChunks,
+          chunks: 'all',
+          cacheGroups: {
+            ...config.optimization.splitChunks.cacheGroups,
+            default: {
+              minChunks: 1,
+              priority: -20,
+              reuseExistingChunk: true,
+            },
+          },
+        },
+      }
+    }
+    return config
+  },
+  // Configuração para evitar timeouts de chunk loading
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@prisma/client'],
+  },
 }
 
 module.exports = nextConfig 

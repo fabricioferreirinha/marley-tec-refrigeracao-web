@@ -38,13 +38,11 @@ const ClassifiedAdsCarousel = () => {
   // Função para determinar quantos itens mostrar baseado no tamanho da tela
   const updateItemsPerView = useCallback(() => {
     const width = window.innerWidth
-    if (width < 480) { // xs - mobile muito pequeno
+    if (width < 640) { // mobile - 1 anúncio por vez
       setItemsPerView(1)
-    } else if (width < 640) { // sm - mobile
+    } else if (width < 1024) { // tablet - 2 anúncios
       setItemsPerView(2)
-    } else if (width < 768) { // md - tablet pequeno
-      setItemsPerView(2)
-    } else { // lg+ - tablet e desktop (máximo 3)
+    } else { // desktop - exatamente 3 anúncios (sem cortes)
       setItemsPerView(3)
     }
   }, [])
@@ -219,7 +217,7 @@ const ClassifiedAdsCarousel = () => {
           </div>
         </div>
 
-        {/* Carousel - Corrigido */}
+        {/* Carousel - Corrigido para Responsividade Perfeita */}
         <div className="relative max-w-7xl mx-auto">
           {anuncios.length > itemsPerView && (
             <>
@@ -238,26 +236,30 @@ const ClassifiedAdsCarousel = () => {
             </>
           )}
 
-          <div className="overflow-hidden">
+          <div className="overflow-hidden px-1 sm:px-2">
             <div 
-              className="flex transition-transform duration-300 ease-in-out justify-center lg:justify-start"
+              className="flex transition-transform duration-300 ease-in-out gap-2 sm:gap-4"
               style={{ 
                 transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
-                width: `${Math.ceil(anuncios.length / itemsPerView) * 100}%`,
-                minWidth: '100%'
               }}
             >
               {anuncios.map((anuncio, index) => (
                 <div
                   key={anuncio.id}
-                  className="flex-shrink-0 px-1 sm:px-2"
+                  className="flex-shrink-0"
                   style={{ 
-                    width: `${100 / itemsPerView}%`,
-                    maxWidth: '320px'
+                    width: `calc(${100 / itemsPerView}% - ${
+                      itemsPerView === 1 ? '8px' : 
+                      itemsPerView === 2 ? '12px' : 
+                      '16px'
+                    })`,
+                    maxWidth: itemsPerView === 1 ? '100%' : 
+                             itemsPerView === 2 ? '380px' : 
+                             '320px'
                   }}
                 >
                   <Card 
-                    className="h-full cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden flex flex-col mx-auto"
+                    className="h-full cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden flex flex-col"
                     onClick={() => openAnuncioModal(anuncio)}
                   >
                     <div className="relative">
@@ -267,16 +269,16 @@ const ClassifiedAdsCarousel = () => {
                           alt={anuncio.titulo}
                           width={300}
                           height={200}
-                          className="w-full h-36 sm:h-40 lg:h-48 object-cover"
+                          className="w-full h-40 sm:h-44 lg:h-48 object-cover"
                         />
                       ) : (
-                        <div className="w-full h-36 sm:h-40 lg:h-48 bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400 text-sm"> Sem imagem</span>
+                        <div className="w-full h-40 sm:h-44 lg:h-48 bg-gray-200 flex items-center justify-center">
+                          <span className="text-gray-400 text-sm">Sem imagem</span>
                         </div>
                       )}
                       
                       {anuncio.destaque && (
-                        <Badge className="absolute top-2 left-2 bg-red-500 text-xs"> Destaque</Badge>
+                        <Badge className="absolute top-2 left-2 bg-red-500 text-xs">Destaque</Badge>
                       )}
                       
                       <Badge className={`absolute top-2 right-2 text-xs ${getConditionColor(anuncio.condicao)}`}>
@@ -287,7 +289,7 @@ const ClassifiedAdsCarousel = () => {
                     <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
                       <div className="mb-2">
                         <span className="text-xs text-gray-500">
-                          {getCategoryLabel(anuncio.categoria)}  Ref: {anuncio.referencia}
+                          {getCategoryLabel(anuncio.categoria)} • Ref: {anuncio.referencia}
                         </span>
                       </div>
                       
@@ -299,23 +301,21 @@ const ClassifiedAdsCarousel = () => {
                         {anuncio.descricao}
                       </p>
                       
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 sm:mb-4 gap-2">
-                        <span className="text-xl sm:text-2xl font-bold text-green-600">
+                      <div className="flex flex-col gap-2 mb-3">
+                        <span className="text-lg sm:text-xl lg:text-2xl font-bold text-green-600">
                           {formatPrice(anuncio.preco)}
                         </span>
                         {anuncio.localizacao && (
                           <div className="flex items-center text-gray-500 text-xs sm:text-sm">
-                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                            <span className="truncate max-w-24 sm:max-w-none">{anuncio.localizacao}</span>
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                            <span className="truncate">{anuncio.localizacao}</span>
                           </div>
                         )}
                       </div>
                       
-                      <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 mb-3 sm:mb-4">
-                        <div className="flex items-center">
-                          <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                          {formatDate(anuncio.createdAt)}
-                        </div>
+                      <div className="flex items-center text-xs sm:text-sm text-gray-500 mb-3">
+                        <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                        {formatDate(anuncio.createdAt)}
                       </div>
 
                       <div className="mt-auto">
@@ -324,7 +324,7 @@ const ClassifiedAdsCarousel = () => {
                             e.stopPropagation()
                             handleWhatsAppContact(anuncio)
                           }}
-                          className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold text-sm sm:text-base py-2 sm:py-3"
+                          className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold text-sm py-2 sm:py-3"
                         >
                           <MessageCircle className="w-4 h-4 mr-2" />
                           <span className="hidden sm:inline">Entrar em Contato</span>
@@ -456,12 +456,12 @@ const ClassifiedAdsCarousel = () => {
                       {getCategoryLabel(selectedAnuncio.categoria)}
                     </Badge>
                     {selectedAnuncio.destaque && (
-                      <Badge className="bg-red-500"> Destaque</Badge>
+                      <Badge className="bg-red-500">Destaque</Badge>
                     )}
                   </div>
 
                   <div>
-                    <h3 className="text-3xl sm:text-4xl font-bold text-green-600 mb-2">
+                    <h3 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-green-600 mb-2">
                       {formatPrice(selectedAnuncio.preco)}
                     </h3>
                     <p className="text-gray-500 text-sm">Ref: {selectedAnuncio.referencia}</p>
@@ -501,14 +501,37 @@ const ClassifiedAdsCarousel = () => {
                     </div>
                   </div>
 
-                  <div className="mt-6">
+                  {/* Botões de Ação */}
+                  <div className="space-y-3 mt-6">
                     <Button
                       onClick={() => handleWhatsAppContact(selectedAnuncio)}
-                      className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 sm:py-4 text-base sm:text-lg"
+                      className="w-full bg-green-500 hover:bg-green-600 text-white font-semibold py-3 sm:py-4 text-sm sm:text-base"
                     >
-                      <MessageCircle className="w-5 h-5 mr-2" />
-                      Entrar em Contato via WhatsApp
+                      <MessageCircle className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                      <span className="hidden sm:inline">Entrar em Contato via WhatsApp</span>
+                      <span className="sm:hidden">Contato WhatsApp</span>
                     </Button>
+                    
+                    <div className="grid grid-cols-2 gap-3">
+                      <Link href="/classificados">
+                        <Button
+                          variant="outline"
+                          className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 font-semibold py-2.5 text-sm sm:text-base"
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          Ver Todos
+                        </Button>
+                      </Link>
+                      
+                      <Button
+                        onClick={closeModal}
+                        variant="outline"
+                        className="w-full border-gray-300 text-gray-600 hover:bg-gray-50 font-semibold py-2.5 text-sm sm:text-base"
+                      >
+                        <X className="w-4 h-4 mr-2" />
+                        Fechar
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>
