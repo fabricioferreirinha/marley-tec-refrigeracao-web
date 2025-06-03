@@ -5,14 +5,22 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 };
 
-// Configuração específica para Vercel com connection pooling otimizado
+// URL com prepared statements desabilitados para Vercel
+const getPrismaUrl = () => {
+  if (process.env.NODE_ENV === 'production') {
+    // Usar directUrl (não-pooled) para evitar conflitos de prepared statements
+    const baseUrl = process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_PRISMA_URL
+    return baseUrl + '?prepared_statements=false&statement_cache_size=0&connect_timeout=60&pool_timeout=0'
+  }
+  return process.env.DATABASE_URL + '?prepared_statements=false'
+}
+
+// Configuração específica para Vercel com prepared statements desabilitados
 export const prisma = globalForPrisma.prisma ?? new PrismaClient({
   log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
   datasources: {
     db: {
-      url: process.env.NODE_ENV === 'production' 
-        ? process.env.POSTGRES_PRISMA_URL + '?connection_limit=1&pool_timeout=0&connect_timeout=60'
-        : process.env.DATABASE_URL
+      url: getPrismaUrl()
     }
   }
 });
@@ -29,7 +37,7 @@ if (typeof process !== 'undefined') {
   });
 }
 
-// Função para forçar nova conexão limpa
+// Função para forçar nova conexão com URL completamente limpa
 export async function forceNewConnection(): Promise<PrismaClient> {
   try {
     console.log('🚨 Forçando nova conexão Prisma...');
@@ -43,10 +51,10 @@ export async function forceNewConnection(): Promise<PrismaClient> {
       }
     }
     
-    // Criar nova instância com URL otimizada para Vercel
-    const cleanUrl = process.env.NODE_ENV === 'production' 
-      ? process.env.POSTGRES_PRISMA_URL + '?connection_limit=1&pool_timeout=0&connect_timeout=30'
-      : process.env.DATABASE_URL
+    // Criar URL com timestamp para garantir nova conexão
+    const timestamp = Date.now()
+    let cleanUrl = getPrismaUrl()
+    cleanUrl += `&cache_bust=${timestamp}&application_name=marley_tec_${timestamp}`
     
     const newClient = new PrismaClient({
       log: ['error'],
@@ -55,8 +63,8 @@ export async function forceNewConnection(): Promise<PrismaClient> {
       }
     });
     
-    // Teste de conexão básico
-    await newClient.$queryRaw`SELECT 1 as test`;
+    // Teste de conexão sem prepared statement
+    await newClient.$executeRaw`SELECT 1 as test`;
     
     // Atualizar instância global
     globalForPrisma.prisma = newClient;
@@ -69,7 +77,34 @@ export async function forceNewConnection(): Promise<PrismaClient> {
   }
 }
 
-// Função withRetry específica para erros de prepared statement
+// Função para limpar prepared statements do PostgreSQL
+export async function clearPostgreSQLCache(): Promise<boolean> {
+  try {
+    console.log('🧹 Limpando cache PostgreSQL...')
+    
+    const cleanClient = new PrismaClient({
+      log: ['error'],
+      datasources: {
+        db: { 
+          url: (process.env.POSTGRES_URL_NON_POOLING || process.env.POSTGRES_PRISMA_URL) + 
+               '?prepared_statements=false&statement_cache_size=0'
+        }
+      }
+    })
+    
+    // Comandos para limpar prepared statements
+    await cleanClient.$executeRaw`DEALLOCATE ALL`
+    
+    await cleanClient.$disconnect()
+    console.log('✅ Cache PostgreSQL limpo')
+    return true
+  } catch (error) {
+    console.error('❌ Erro ao limpar cache:', error)
+    return false
+  }
+}
+
+// Função withRetry mais agressiva
 export async function withRetry<T>(
   operation: () => Promise<T>,
   maxRetries: number = 3
@@ -85,7 +120,7 @@ export async function withRetry<T>(
       
       if (attempt === maxRetries) break;
       
-      // Detectar especificamente erros de prepared statement
+      // Detectar erros de prepared statement
       const isPreparedStatementError = error instanceof Error && 
         (error.message.includes('prepared statement') || 
          error.message.includes('42P05') || 
@@ -94,11 +129,18 @@ export async function withRetry<T>(
          error.message.includes('does not exist'));
       
       if (isPreparedStatementError) {
-        console.log('🔄 Forçando nova conexão devido a erro de prepared statement/conexão');
+        console.log('🔄 Forçando nova conexão devido a erro de prepared statement/conexão')
         try {
-          await forceNewConnection();
+          // Primeiro tentar limpar cache do PostgreSQL
+          await clearPostgreSQLCache()
+          
+          // Depois forçar nova conexão
+          await forceNewConnection()
+          
+          // Pausa extra após reset para estabilizar
+          await new Promise(resolve => setTimeout(resolve, 1000))
         } catch (resetError) {
-          console.error('Erro ao resetar conexão:', resetError);
+          console.error('Erro ao resetar conexão:', resetError)
         }
       }
       
@@ -112,18 +154,18 @@ export async function withRetry<T>(
   throw lastError!;
 }
 
-// Executar com cliente completamente isolado
+// Executar com cliente completamente isolado e URL única
 export async function executeWithFreshClient<T>(
   operation: (client: PrismaClient) => Promise<T>
 ): Promise<T> {
+  const timestamp = Date.now()
+  let freshUrl = getPrismaUrl()
+  freshUrl += `&cache_bust=${timestamp}&application_name=fresh_${timestamp}`
+  
   const freshClient = new PrismaClient({
     log: ['error'],
     datasources: {
-      db: {
-        url: process.env.NODE_ENV === 'production' 
-          ? process.env.POSTGRES_PRISMA_URL + '?connection_limit=1&pool_timeout=0'
-          : process.env.DATABASE_URL
-      }
+      db: { url: freshUrl }
     }
   });
   
