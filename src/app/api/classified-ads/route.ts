@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { Status } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url)
+    const { searchParams } = request.nextUrl
     const active = searchParams.get('active')
     const limit = parseInt(searchParams.get('limit') || '6')
 
-    const where = active === 'true' ? { status: Status.ATIVO } : {}
+    const where = active === 'true' ? { status: 'ATIVO' } : {}
 
     const classifiedAds = await prisma.anuncio.findMany({
       where,
