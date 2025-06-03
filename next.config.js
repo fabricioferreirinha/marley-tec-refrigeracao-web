@@ -55,9 +55,25 @@ const nextConfig = {
     }
     return config
   },
-  // Configuração para evitar timeouts de chunk loading
+  // Configuração para evitar timeouts de chunk loading e melhorar suporte ao Prisma
   experimental: {
     optimizePackageImports: ['lucide-react', '@prisma/client'],
+    serverComponentsExternalPackages: ['prisma'],
+  },
+  
+  // Configurar todas as API routes como dinâmicas por padrão
+  async headers() {
+    return [
+      {
+        source: '/api/:path*',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'no-store, must-revalidate',
+          },
+        ],
+      },
+    ];
   },
 }
 
