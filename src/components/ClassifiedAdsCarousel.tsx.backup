@@ -1,4 +1,4 @@
-﻿"use client"
+"use client"
 
 import React, { useState, useEffect, useCallback } from 'react'
 import { ChevronLeft, ChevronRight, MessageCircle, Eye, MapPin, Calendar, X } from 'lucide-react'
@@ -38,14 +38,16 @@ const ClassifiedAdsCarousel = () => {
   // Função para determinar quantos itens mostrar baseado no tamanho da tela
   const updateItemsPerView = useCallback(() => {
     const width = window.innerWidth
-    if (width < 480) { // xs - mobile muito pequeno
+    if (width < 640) { // sm
       setItemsPerView(1)
-    } else if (width < 640) { // sm - mobile
+    } else if (width < 768) { // md
       setItemsPerView(2)
-    } else if (width < 768) { // md - tablet pequeno
+    } else if (width < 1024) { // lg
       setItemsPerView(2)
-    } else { // lg+ - tablet e desktop (máximo 3)
+    } else if (width < 1280) { // xl
       setItemsPerView(3)
+    } else { // 2xl
+      setItemsPerView(4)
     }
   }, [])
 
@@ -202,7 +204,7 @@ const ClassifiedAdsCarousel = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-8 sm:mb-12">
           <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4">
-             Eletrodomésticos Usados
+            🏠 Eletrodomésticos Usados
           </h2>
           <p className="text-base sm:text-lg lg:text-xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto">
             Equipamentos revisados e testados, com garantia de funcionamento e preços especiais
@@ -240,24 +242,22 @@ const ClassifiedAdsCarousel = () => {
 
           <div className="overflow-hidden">
             <div 
-              className="flex transition-transform duration-300 ease-in-out justify-center lg:justify-start"
+              className="flex transition-transform duration-300 ease-in-out"
               style={{ 
                 transform: `translateX(-${currentIndex * (100 / itemsPerView)}%)`,
-                width: `${Math.ceil(anuncios.length / itemsPerView) * 100}%`,
-                minWidth: '100%'
+                width: `${Math.ceil(anuncios.length / itemsPerView) * 100}%`
               }}
             >
               {anuncios.map((anuncio, index) => (
                 <div
                   key={anuncio.id}
-                  className="flex-shrink-0 px-1 sm:px-2"
+                  className="flex-shrink-0 px-2 sm:px-3"
                   style={{ 
-                    width: `${100 / itemsPerView}%`,
-                    maxWidth: '320px'
+                    width: `${100 / itemsPerView}%`
                   }}
                 >
                   <Card 
-                    className="h-full cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden flex flex-col mx-auto"
+                    className="h-full cursor-pointer hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 overflow-hidden flex flex-col"
                     onClick={() => openAnuncioModal(anuncio)}
                   >
                     <div className="relative">
@@ -271,12 +271,12 @@ const ClassifiedAdsCarousel = () => {
                         />
                       ) : (
                         <div className="w-full h-36 sm:h-40 lg:h-48 bg-gray-200 flex items-center justify-center">
-                          <span className="text-gray-400 text-sm"> Sem imagem</span>
+                          <span className="text-gray-400 text-sm">📷 Sem imagem</span>
                         </div>
                       )}
                       
                       {anuncio.destaque && (
-                        <Badge className="absolute top-2 left-2 bg-red-500 text-xs"> Destaque</Badge>
+                        <Badge className="absolute top-2 left-2 bg-red-500 text-xs">⭐ Destaque</Badge>
                       )}
                       
                       <Badge className={`absolute top-2 right-2 text-xs ${getConditionColor(anuncio.condicao)}`}>
@@ -287,7 +287,7 @@ const ClassifiedAdsCarousel = () => {
                     <CardContent className="p-3 sm:p-4 flex-1 flex flex-col">
                       <div className="mb-2">
                         <span className="text-xs text-gray-500">
-                          {getCategoryLabel(anuncio.categoria)}  Ref: {anuncio.referencia}
+                          {getCategoryLabel(anuncio.categoria)} • Ref: {anuncio.referencia}
                         </span>
                       </div>
                       
@@ -456,7 +456,7 @@ const ClassifiedAdsCarousel = () => {
                       {getCategoryLabel(selectedAnuncio.categoria)}
                     </Badge>
                     {selectedAnuncio.destaque && (
-                      <Badge className="bg-red-500"> Destaque</Badge>
+                      <Badge className="bg-red-500">⭐ Destaque</Badge>
                     )}
                   </div>
 
@@ -520,5 +520,4 @@ const ClassifiedAdsCarousel = () => {
   )
 }
 
-export default ClassifiedAdsCarousel
-
+export default ClassifiedAdsCarousel 
