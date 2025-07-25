@@ -8,7 +8,7 @@ import SessionStatus from '@/components/SessionStatus'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  metadataBase: new URL('https://marley-tec.com'),
+  metadataBase: new URL('https://marleytecrefrigeracao.com.br'),
   title: 'Marley Tec - Técnico em Refrigeração | Maricá-RJ | Conserto de Ar-Condicionado, Geladeira, Fogão',
   description: 'Técnico especialista em refrigeração em Maricá-RJ. Conserto e instalação de ar-condicionado split, geladeiras, fogões, máquinas de lavar, microondas, freezers e câmaras frigoríficas. Atendimento rápido eS com garantia! Orçamento grátis.',
   keywords: 'técnico refrigeração maricá, conserto ar condicionado maricá, técnico geladeira maricá, instalação split maricá, conserto fogão maricá, técnico máquina lavar maricá, conserto microondas maricá, técnico freezer maricá, câmara frigorífica maricá, refrigeração comercial maricá',
