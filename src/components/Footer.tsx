@@ -76,7 +76,7 @@ export default function Footer() {
     'Ar-Condicionado Split',
     'Geladeiras e Freezers',
     'Máquinas de Lavar',
-    'Fogões e Microondas',
+    'Microondas',
     'Câmaras Frigoríficas',
     'Manutenção Preventiva'
   ]

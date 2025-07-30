@@ -9,9 +9,9 @@ const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
   metadataBase: new URL('https://marleytecrefrigeracao.com.br'),
-  title: 'Marley Tec - Técnico em Refrigeração | Maricá-RJ | Conserto de Ar-Condicionado, Geladeira, Fogão',
-  description: 'Técnico especialista em refrigeração em Maricá-RJ. Conserto e instalação de ar-condicionado split, geladeiras, fogões, máquinas de lavar, microondas, freezers e câmaras frigoríficas. Atendimento rápido eS com garantia! Orçamento grátis.',
-  keywords: 'técnico refrigeração maricá, conserto ar condicionado maricá, técnico geladeira maricá, instalação split maricá, conserto fogão maricá, técnico máquina lavar maricá, conserto microondas maricá, técnico freezer maricá, câmara frigorífica maricá, refrigeração comercial maricá',
+  title: 'Marley Tec - Técnico em Refrigeração | Maricá-RJ | Conserto de Ar-Condicionado, Câmaras Frigoríficas',
+  description: 'Técnico especialista em refrigeração em Maricá-RJ. Conserto e instalação de ar-condicionado split, geladeiras, máquinas de lavar, microondas, freezers e câmaras frigoríficas. Atendimento rápido e com garantia! Orçamento grátis.',
+  keywords: 'técnico refrigeração maricá, conserto ar condicionado maricá, técnico geladeira maricá, instalação split maricá, câmara frigorífica maricá, técnico máquina lavar maricá, conserto microondas maricá, técnico freezer maricá, refrigeração comercial maricá, instalação câmara fria maricá',
   authors: [{ name: 'Marley Tec' }],
   creator: 'Marley Tec',
   publisher: 'Marley Tec',
@@ -138,7 +138,7 @@ export default function RootLayout({
                     "@type": "Offer",
                     "itemOffered": {
                       "@type": "Service",
-                      "name": "Conserto de Fogões e Microondas"
+                      "name": "Instalação e Manutenção de Câmaras Frigoríficas"
                     }
                   },
                   {

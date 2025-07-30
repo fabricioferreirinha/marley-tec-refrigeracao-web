@@ -44,16 +44,16 @@ const WashingMachineIcon = ({ className }: { className?: string }) => (
   </svg>
 )
 
-const StoveIcon = ({ className }: { className?: string }) => (
+const ColdStorageIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect x="8" y="16" width="48" height="40" rx="4" fill="currentColor" opacity="0.1"/>
-    <rect x="8" y="16" width="48" height="40" rx="4" stroke="currentColor" strokeWidth="2"/>
-    <circle cx="20" cy="28" r="6" stroke="currentColor" strokeWidth="1.5"/>
-    <circle cx="44" cy="28" r="6" stroke="currentColor" strokeWidth="1.5"/>
-    <circle cx="20" cy="28" r="2" fill="currentColor"/>
-    <circle cx="44" cy="28" r="2" fill="currentColor"/>
-    <rect x="12" y="40" width="40" height="12" rx="2" fill="currentColor" opacity="0.2"/>
-    <path d="M16 44h32M16 48h32" stroke="currentColor" strokeWidth="1"/>
+    <rect x="4" y="8" width="56" height="48" rx="4" fill="currentColor" opacity="0.1"/>
+    <rect x="4" y="8" width="56" height="48" rx="4" stroke="currentColor" strokeWidth="2"/>
+    <path d="M4 20h56M4 36h56" stroke="currentColor" strokeWidth="2"/>
+    <rect x="8" y="12" width="12" height="4" rx="1" fill="currentColor" opacity="0.3"/>
+    <rect x="8" y="24" width="12" height="4" rx="1" fill="currentColor" opacity="0.3"/>
+    <rect x="8" y="40" width="12" height="4" rx="1" fill="currentColor" opacity="0.3"/>
+    <path d="M28 14v6M36 14v6M44 14v6" stroke="currentColor" strokeWidth="1.5"/>
+    <circle cx="52" cy="16" r="2" fill="currentColor"/>
   </svg>
 )
 
@@ -138,7 +138,7 @@ export default function HomePage() {
                 
                   <p className="text-xl lg:text-2xl text-gray-600 leading-relaxed max-w-2xl">
                     <strong className="text-gray-800">Mais de 15 anos de experiência</strong> em conserto e instalação de 
-                  ar-condicionado split, geladeiras, fogões, máquinas de lavar, microondas, freezers e câmaras frigoríficas.
+                  ar-condicionado split, geladeiras, máquinas de lavar, microondas, freezers e câmaras frigoríficas.
                 </p>
                 
                   <div className="flex items-center space-x-4 text-lg">
@@ -404,30 +404,30 @@ export default function HomePage() {
                 </div>
             </div>
 
-              {/* Fogões & Microondas */}
+              {/* Câmaras Frigoríficas & Microondas */}
               <div className="group bg-white p-8 rounded-3xl shadow-lg hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-4 border-t-4 border-orange-500 relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-24 h-24 bg-orange-50 rounded-full -translate-y-12 translate-x-12"></div>
                 <div className="relative z-10">
                   <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <StoveIcon className="w-10 h-10 text-orange-600" />
+                    <ColdStorageIcon className="w-10 h-10 text-orange-600" />
                   </div>
-              <h3 className="text-2xl font-bold mb-4 text-gray-800">Fogões & Microondas</h3>
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">Câmaras Frigoríficas</h3>
                   <ul className="space-y-3 text-gray-600 mb-6">
                 <li className="flex items-start">
                       <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span><strong>Acendimento e regulagem</strong></span>
+                  <span><strong>Instalação e manutenção</strong></span>
                 </li>
                 <li className="flex items-start">
                       <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Microondas não aquece?</span>
+                  <span>Controle de temperatura preciso</span>
                 </li>
                 <li className="flex items-start">
                       <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Limpeza técnica interna</span>
+                  <span>Sistemas de refrigeração industrial</span>
                 </li>
                 <li className="flex items-start">
                       <CheckCircle className="w-5 h-5 text-green-500 mr-2 mt-0.5 flex-shrink-0" />
-                  <span>Segurança garantida</span>
+                  <span>Monitoramento e diagnóstico</span>
                 </li>
               </ul>
                   <Link 
