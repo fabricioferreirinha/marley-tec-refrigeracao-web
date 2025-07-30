@@ -1,0 +1,40 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    # Executa a cada 4 horas (6x por dia)
+    - cron: '0 */4 * * *'
+  workflow_dispatch: # Permite execução manual
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase via keep-alive endpoint
+        run: |
+          echo "🚀 Executando keep-alive do Supabase..."
+          
+          # Fazer requisição ao endpoint
+          RESPONSE=$(curl -s -w "%{http_code}" -o response.json https://marley-tec.vercel.app/api/cron/keep-alive)
+          
+          echo "📊 Status HTTP: $RESPONSE"
+          
+          # Mostrar resposta
+          if [ -f response.json ]; then
+            echo "📋 Resposta do servidor:"
+            cat response.json | jq '.' || cat response.json
+          fi
+          
+          # Verificar se foi bem-sucedido
+          if [ "$RESPONSE" -eq 200 ]; then
+            echo "✅ Keep-alive executado com sucesso!"
+          else
+            echo "❌ Falha no keep-alive (HTTP $RESPONSE)"
+            exit 1
+          fi
+
+      - name: Verificar status do Supabase
+        if: failure()
+        run: |
+          echo "🚨 ALERTA: Possível problema com Supabase!"
+          echo "📧 Considere verificar o dashboard do Supabase manualmente."
