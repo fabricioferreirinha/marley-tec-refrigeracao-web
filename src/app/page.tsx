@@ -186,7 +186,7 @@ export default function HomePage() {
                 {/* Imagem do técnico */}
                       <div className="relative flex justify-center">
                   <Image
-                          src="/tecnico.png"
+                          src="/tecnico - 591x800.webp"
                           alt="Marley Tec - Técnico Especialista em Refrigeração Maricá-RJ"
                           width={401}
                           height={481}
