@@ -1,9 +1,9 @@
 name: Keep Supabase Alive
 
 on:
-  schedule:
-    # Executa a cada 4 horas (6x por dia)
-    - cron: '0 */4 * * *'
+  # schedule:
+  #   # Executa a cada 4 horas (6x por dia)
+  #   - cron: '0 */4 * * *'
   workflow_dispatch: # Permite execução manual
 
 jobs:
@@ -15,7 +15,7 @@ jobs:
           echo "🚀 Executando keep-alive do Supabase..."
           
           # Fazer requisição ao endpoint
-          RESPONSE=$(curl -s -w "%{http_code}" -o response.json https://marley-tec.vercel.app/api/cron/keep-alive)
+          RESPONSE=$(curl -s -w "%{http_code}" -o response.json https://marley-tec-refrigeracao-web.vercel.app/api/cron/keep-alive)
           
           echo "📊 Status HTTP: $RESPONSE"
           
